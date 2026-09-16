@@ -12,9 +12,10 @@ export const typography = {
     fontWeight: '700',
   },
   subtitle: {
-    fontSize: 16,
-    lineHeight: 22,
-    fontWeight: '600',
+    fontFamily: 'Manrope-Regular',
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: '400',
   },
   body: {
     fontSize: 14,
@@ -29,6 +30,59 @@ export const typography = {
   price: {
     fontSize: 16,
     lineHeight: 22,
+    fontWeight: '700',
+  },
+  eyebrow: {
+    fontFamily: 'Manrope-SemiBold',
+    fontSize: 11,
+    lineHeight: 14,
+    fontWeight: '600',
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
+  },
+  eyebrowSm: {
+    fontFamily: 'Manrope-Bold',
+    fontSize: 10,
+    lineHeight: 13,
+    fontWeight: '700',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+  },
+  cardTitle: {
+    fontFamily: 'Manrope-SemiBold',
+    fontSize: 14,
+    lineHeight: 19,
+    fontWeight: '600',
+  },
+  searchInput: {
+    fontFamily: 'Manrope-Medium',
+    fontSize: 15,
+    lineHeight: 20,
+    fontWeight: '500',
+  },
+  priceMain: {
+    fontFamily: 'Manrope-Bold',
+    fontSize: 16,
+    lineHeight: 22,
+    fontWeight: '700',
+  },
+  priceStrike: {
+    fontFamily: 'Manrope-Regular',
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: '400',
+    textDecorationLine: 'line-through',
+  },
+  footerLabel: {
+    fontFamily: 'Manrope-Medium',
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: '500',
+  },
+  screenTitle: {
+    fontFamily: 'Manrope-Bold',
+    fontSize: 24,
+    lineHeight: 30,
     fontWeight: '700',
   },
 } satisfies Record<string, TextStyle>;

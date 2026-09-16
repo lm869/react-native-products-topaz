@@ -1,6 +1,7 @@
 export const radius = {
   none: 0,
   sm: 8,
+  image: 12,
   chip: 12,
   button: 14,
   card: 18,

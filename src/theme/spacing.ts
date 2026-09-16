@@ -1,8 +1,10 @@
 export const spacing = {
   none: 0,
   xxs: 4,
+  avatar: 8,
   xs: 8,
   sm: 12,
+  gutterSm: 14,
   md: 16,
   gutter: 16,
   lg: 20,
