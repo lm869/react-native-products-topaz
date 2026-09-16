@@ -1,10 +1,14 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { useAppTheme } from '@/theme/ThemeContext';
 
 export function FavoritesScreen(): React.JSX.Element {
+  const theme = useAppTheme();
   return (
-    <View style={styles.root}>
-      <Text style={styles.title}>Favorites</Text>
+    <View style={[styles.root, { backgroundColor: theme.colors.canvas }]}>
+      <Text style={[styles.title, { color: theme.colors.text }]}>
+        Favorites
+      </Text>
     </View>
   );
 }

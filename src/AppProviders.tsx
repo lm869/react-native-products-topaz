@@ -2,6 +2,7 @@ import React from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ThemeProvider } from '@/theme/ThemeProvider';
+import { ThemeOverrideProvider } from '@/theme/ThemeOverrideProvider';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { queryClient } from '@/store/queryClient';
 
@@ -12,7 +13,9 @@ export function AppProviders({ children }: Props): React.JSX.Element {
     <ErrorBoundary>
       <SafeAreaProvider>
         <QueryClientProvider client={queryClient}>
-          <ThemeProvider>{children}</ThemeProvider>
+          <ThemeProvider>
+            <ThemeOverrideProvider>{children}</ThemeOverrideProvider>
+          </ThemeProvider>
         </QueryClientProvider>
       </SafeAreaProvider>
     </ErrorBoundary>
