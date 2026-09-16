@@ -370,33 +370,90 @@ function mapAppError(e: AppError): string {
 
 ## Edge Cases (top 25)
 
-| ID | Case | Layer | Test |
-|----|------|-------|------|
-| EDGE-001 | Offline | httpClient | EDGE-T-001 |
-| EDGE-002 | Timeout | httpClient | EDGE-T-002 |
-| EDGE-003 | 404 on detail | repo | EDGE-T-003 |
-| EDGE-004 | 500 server | repo | EDGE-T-004 |
-| EDGE-005 | Invalid JSON | httpClient | EDGE-T-005 |
-| EDGE-006 | Empty results | screen | EDGE-T-006 |
-| EDGE-007 | Broken image | Image | EDGE-T-007 |
-| EDGE-008 | Long title | ProductCard | EDGE-T-008 |
-| EDGE-009 | Long description | Detail | EDGE-T-009 |
-| EDGE-010 | price=0 | mapper + UI | EDGE-T-010 |
-| EDGE-011 | discount=0 | discount util | EDGE-T-011 |
-| EDGE-012 | rating=0 | ProductCard | EDGE-T-012 |
-| EDGE-013 | Duplicate pagination | useInfiniteQuery | EDGE-T-013 |
-| EDGE-014 | Pagination reaches total | mapper | EDGE-T-014 |
-| EDGE-015 | Rapid typing | debounce + signal | EDGE-T-015 |
-| EDGE-016 | Rapid category switch | queryKey + signal | EDGE-T-016 |
-| EDGE-017 | Rapid favorite toggle | store | EDGE-T-017 |
-| EDGE-018 | Corrupted MMKV | mmkvStorage | EDGE-T-018 |
-| EDGE-019 | App restart | hydration | EDGE-T-019 |
-| EDGE-020 | Navigation away mid-fetch | hook | EDGE-T-020 |
-| EDGE-021 | Dark mode runtime change | theme | EDGE-T-021 |
-| EDGE-022 | brand missing | mapper + UI | EDGE-T-022 |
-| EDGE-023 | images empty | Detail | EDGE-T-023 |
-| EDGE-024 | tags empty | Detail | EDGE-T-024 |
-| EDGE-025 | AbortError | httpClient + hook | EDGE-T-025 |
+Each edge case is classified by automation strategy. A documented edge case
+does NOT imply an automated test must exist.
+
+Classifications:
+- **MUST**: automated test is part of Phase 5 deliverable.
+- **SHOULD**: automated test if time permits after MUST; otherwise covered by
+  adjacent MUST tests or manual validation.
+- **MANUAL**: validated manually (Slow 3G, OS settings, exploratory) — no test.
+- **IMPL**: implementation handles it defensively; no dedicated test needed.
+- **COVERED**: behavior naturally exercised by a MUST test elsewhere.
+
+| ID | Case | Layer | Type | Automation |
+|----|------|-------|------|------------|
+| EDGE-001 | Offline | httpClient | network failure | MANUAL |
+| EDGE-002 | Timeout | httpClient | timeout | MANUAL |
+| EDGE-003 | 404 on detail | repo | not-found | COVERED (useProducts) |
+| EDGE-004 | 500 server | repo | server-error | IMPL |
+| EDGE-005 | Invalid JSON | httpClient | parse error | IMPL |
+| EDGE-006 | Empty results | screen | empty-state | COVERED (useProducts) |
+| EDGE-007 | Broken image | Image | image fail | MANUAL |
+| EDGE-008 | Long title | ProductCard | truncation | SHOULD |
+| EDGE-009 | Long description | Detail | truncation | MANUAL |
+| EDGE-010 | price=0 | mapper + UI | edge | MUST (calculateDiscountedPrice.test) |
+| EDGE-011 | discount=0 | discount util | edge | MUST (calculateDiscountedPrice.test) |
+| EDGE-012 | rating=0 | ProductCard | hide stars | MANUAL |
+| EDGE-013 | Duplicate pagination | useInfiniteQuery | dedupe | IMPL |
+| EDGE-014 | Pagination reaches total | mapper + hook | stop | SHOULD (useProducts) |
+| EDGE-015 | Rapid typing | debounce + signal | race | SHOULD (useDebouncedValue) |
+| EDGE-016 | Rapid category switch | queryKey + signal | race | MANUAL |
+| EDGE-017 | Rapid favorite toggle | store | race | SHOULD (useFavorites) |
+| EDGE-018 | Corrupted MMKV | mmkvStorage | corrupt JSON | IMPL |
+| EDGE-019 | App restart | hydration | persist | SHOULD (useFavorites) |
+| EDGE-020 | Navigation away mid-fetch | hook | abort | MANUAL |
+| EDGE-021 | Dark mode runtime change | theme | OS change | MANUAL |
+| EDGE-022 | brand missing | mapper + UI | hide | MANUAL |
+| EDGE-023 | images empty | Detail | fallback | MANUAL |
+| EDGE-024 | tags empty | Detail | hide | MANUAL |
+| EDGE-025 | AbortError | httpClient + hook | abort chain | IMPL |
+
+## Testing Strategy (Phase 5 v2)
+
+### Principle
+**MINIMUM REQUIRED, HIGH VALUE TESTING.**
+
+Edge cases documented ≠ automated tests. The 72-hour scope prioritizes
+functional completeness, stability, and code quality over test count.
+
+### MUST tests (4 files)
+
+| File | Covers |
+|------|--------|
+| `src/features/products/hooks/__tests__/useProducts.test.ts` | Initial load success, error + retry, pagination, search ↔ category mutual exclusion |
+| `src/features/favorites/hooks/__tests__/useFavorites.test.ts` | Add, remove, reactive cross-screen update, hydration |
+| `src/shared/utils/__tests__/calculateDiscountedPrice.test.ts` | Discount > 0, discount = 0 |
+| `src/features/products/screens/__tests__/ProductDetailScreen.test.tsx` | Integration: render product → tap FavoriteButton → icon toggles + state updates |
+
+### SHOULD tests (only if MUST complete and time permits)
+
+- `src/shared/utils/__tests__/formatCurrency.test.ts` — only if `formatCurrency`
+  has own logic beyond `Intl.NumberFormat` wrapper.
+- `src/features/products/hooks/__tests__/useDebouncedValue.test.ts` — only if
+  debounce behavior is not naturally exercised by `useProducts.test.ts`.
+- `src/features/products/mappers/__tests__/productMapper.test.ts` — only if
+  mapper behavior is not covered by hook tests.
+
+### Manual / Implementation (no test)
+
+Everything else: timeouts, HTTP 4xx/5xx, invalid JSON, corrupted MMKV, rapid
+toggling, navigation mid-fetch, image failures, dark mode runtime change,
+a11y props, Reanimated internals, ErrorBoundary internals — all of these
+are handled in implementation but validated by code review and manual
+exploration. See Edge Cases table for per-edge classification.
+
+### Mocking rule
+
+For hooks and UI tests, mock at the **repository boundary**
+(`ProductRepository`, `FavoritesRepository`). Do not mock `fetch` deeply in
+unit tests; let integration coverage be implicit in production wiring.
+
+### Coverage
+
+There is **no required coverage percentage**. Time spent on tests must be
+proportional to the 72-hour scope and prioritize MUST files.
+
 
 ## Acceptance Criteria (Given/When/Then)
 
@@ -472,74 +529,85 @@ function mapAppError(e: AppError): string {
 
 ## Traceability Matrix
 
-| Req ID | Spec § | Implementation | Test |
-|--------|--------|----------------|------|
+Test Class values:
+- `MUST: <file>` — automated test required by Phase 5.
+- `SHOULD: <file>` — automated test recommended; may be skipped under time pressure.
+- `Integration: <file>` — single integration test deliverable.
+- `IMPL` — handled in implementation; no dedicated test.
+- `MANUAL` — validated manually.
+- `Covered by <file>` — exercised naturally by another MUST test.
+- `code review` — verified via code review.
+
+| Req ID | Spec § | Implementation | Test Class |
+|--------|--------|----------------|------------|
 | ARCH-001 | plan §Folder Structure | `src/{domain,features,api,storage,components,hooks,utils,store,navigation,theme}` | code review |
-| ARCH-002 | plan §Layer Diagram | `src/features/*/repository/*` (impls) | repo tests |
-| ARCH-003 | plan §Dep Rules | `no-restricted-imports` | eslint CI |
-| ARCH-004 | plan §Dep Rules | `src/storage/mmkv.ts` isolation | mmkv tests |
-| STORE-001 | plan §State Machines | `src/store/queryClient.ts` | useProducts tests |
-| STORE-002 | plan §State Machines | `favoritesStore.ts` | useFavorites tests |
-| STORE-003 | plan §Data Flow | `src/storage/mmkv.ts` + repo | mmkv tests |
-| PROD-001 | plan §Folder Structure | ProductsScreen + ProductCard | integration test |
-| PROD-002 | data-model §Pagination | useInfiniteQuery | useProducts tests |
-| PROD-003 | data-model §Pagination | productMapper.ts (mapProductsResponseDto) | mapper tests |
-| SEARCH-001 | plan §API | `features/products/api/productsApi.ts` | repo tests |
-| SEARCH-002 | plan §Animation | `features/products/hooks/useDebouncedValue.ts` | debounce tests |
-| SEARCH-003 | plan §Net | httpClient signal | net tests |
-| SEARCH-004 | plan §State Machines | useProducts state machine | useProducts tests |
-| CAT-001 | plan §API | `useCategories` | useCategories tests |
-| CAT-002 | plan §Folder | CategoryChips | component tests |
-| CAT-003 | plan §API | DummyJsonProductRepository | repo tests |
-| CAT-004 | plan §State Machines | useProducts state machine | useProducts tests |
-| DETAIL-001 | plan §API | `useProduct` (renamed from useProductDetail) | useProduct tests |
-| DETAIL-002 | plan §Folder | ProductDetailScreen | component tests |
-| DETAIL-003 | plan §Folder | ProductDetailScreen | component tests |
-| DETAIL-004 | plan §Folder | ProductDetailScreen | component tests |
-| FAV-001 | plan §Data Flow | `src/storage/mmkv.ts` + MMKVFavoritesRepository | repo + storage tests |
-| FAV-002 | plan §Folder | FavoritesScreen | integration test |
-| FAV-003 | plan §Data Flow | `favoritesStore.ts` (Zustand) | useFavorites tests |
-| FAV-004 | data-model §FavoriteProduct | `domain/favorites/FavoriteProduct.ts` | mapper tests |
-| REPO-001 | plan §API Contracts | `domain/product/IProductRepository.ts` | repo tests |
-| REPO-002 | plan §API Contracts | signal in all methods | repo tests |
-| REPO-003 | plan §API Contracts | `domain/favorites/IFavoritesRepository.ts` | repo tests |
-| NET-001 | plan §API Contracts | `api/httpClient.ts` | httpClient tests |
-| NET-002 | plan §Dep Rules | httpClient URL composition | httpClient tests |
-| NET-003 | plan §Data Flow | signal propagation | httpClient tests |
-| ERR-001 | plan §Errors | `api/errors.ts` types | error tests |
-| ERR-002 | plan §Errors | `mapAppError` | error tests |
-| ERR-003 | plan §Errors | ErrorBoundary | component tests |
-| LOAD-001 | plan §Folder | ProductSkeleton | component tests |
-| LOAD-002 | plan §Folder | ProductGridFooter | component tests |
-| LOAD-003 | plan §Folder | skeleton dims = card dims | component tests |
-| ANIM-001 | plan §Animation | FavoriteButton | animation tests |
-| ANIM-002 | plan §Animation | lint ban on Animated | eslint CI |
-| NAV-001 | plan §Folder | `navigation/RootTabs.tsx` | nav tests |
-| NAV-002 | plan §Folder | `navigation/ProductsStack.tsx` | nav tests |
-| NAV-003 | plan §Folder | FavoritesScreen | nav tests |
+| ARCH-002 | plan §Layer Diagram | `src/features/*/repository/*` (impls) | IMPL |
+| ARCH-003 | plan §Dep Rules | `no-restricted-imports` | code review (lint enforces) |
+| ARCH-004 | plan §Dep Rules | `src/storage/mmkv.ts` isolation | code review (lint enforces) |
+| STORE-001 | plan §State Machines | `src/store/queryClient.ts` | MUST: useProducts.test.ts (indirect) |
+| STORE-002 | plan §State Machines | `favoritesStore.ts` | MUST: useFavorites.test.ts |
+| STORE-003 | plan §Data Flow | `src/storage/mmkv.ts` + repo | MUST: useFavorites.test.ts (hydration) |
+| PROD-001 | plan §Folder Structure | ProductsScreen + ProductCard | Integration: ProductDetailScreen.test.tsx |
+| PROD-002 | data-model §Pagination | useInfiniteQuery | MUST: useProducts.test.ts |
+| PROD-003 | data-model §Pagination | productMapper.ts (mapProductsResponseDto) | Covered by useProducts.test.ts |
+| SEARCH-001 | plan §API | `features/products/api/productsApi.ts` | IMPL |
+| SEARCH-002 | plan §Animation | `features/products/hooks/useDebouncedValue.ts` | SHOULD: useDebouncedValue.test.ts |
+| SEARCH-003 | plan §Net | httpClient signal | IMPL |
+| SEARCH-004 | plan §State Machines | useProducts state machine | MUST: useProducts.test.ts |
+| CAT-001 | plan §API | `useCategories` | Covered by ProductsScreen integration |
+| CAT-002 | plan §Folder | CategoryChips | MANUAL |
+| CAT-003 | plan §API | DummyJsonProductRepository | IMPL |
+| CAT-004 | plan §State Machines | useProducts state machine | MUST: useProducts.test.ts |
+| DETAIL-001 | plan §API | `useProduct` | Covered by ProductDetailScreen.test.tsx |
+| DETAIL-002 | plan §Folder | ProductDetailScreen | Integration: ProductDetailScreen.test.tsx |
+| DETAIL-003 | plan §Folder | ProductDetailScreen | Integration: ProductDetailScreen.test.tsx |
+| DETAIL-004 | plan §Folder | ProductDetailScreen | MANUAL (secondary fields) |
+| FAV-001 | plan §Data Flow | `src/storage/mmkv.ts` + MMKVFavoritesRepository | MUST: useFavorites.test.ts |
+| FAV-002 | plan §Folder | FavoritesScreen | Integration: ProductDetailScreen.test.tsx |
+| FAV-003 | plan §Data Flow | `favoritesStore.ts` (Zustand) | MUST: useFavorites.test.ts |
+| FAV-004 | data-model §FavoriteProduct | `domain/favorites/FavoriteProduct.ts` | IMPL |
+| REPO-001 | plan §API Contracts | `domain/product/IProductRepository.ts` | IMPL |
+| REPO-002 | plan §API Contracts | signal in all methods | IMPL (validated via hook integration) |
+| REPO-003 | plan §API Contracts | `domain/favorites/IFavoritesRepository.ts` | IMPL |
+| NET-001 | plan §API Contracts | `api/httpClient.ts` | MANUAL (Slow 3G / DevTools) |
+| NET-002 | plan §Dep Rules | httpClient URL composition | IMPL |
+| NET-003 | plan §Data Flow | signal propagation | IMPL |
+| ERR-001 | plan §Errors | `api/errors.ts` types | IMPL |
+| ERR-002 | plan §Errors | `mapAppError` | IMPL |
+| ERR-003 | plan §Errors | ErrorBoundary | MANUAL (cold launch with thrown render) |
+| LOAD-001 | plan §Folder | ProductSkeleton | MANUAL |
+| LOAD-002 | plan §Folder | ProductGridFooter | MANUAL |
+| LOAD-003 | plan §Folder | skeleton dims = card dims | code review |
+| ANIM-001 | plan §Animation | FavoriteButton | MANUAL (visual) |
+| ANIM-002 | plan §Animation | lint ban on Animated | code review (lint enforces) |
+| NAV-001 | plan §Folder | `navigation/RootTabs.tsx` | MANUAL |
+| NAV-002 | plan §Folder | `navigation/ProductsStack.tsx` | MANUAL |
+| NAV-003 | plan §Folder | FavoritesScreen | MANUAL |
 | NAV-004 | plan §Folder | structural | code review |
-| NAV-005 | plan §Folder | `navigation/types.ts` | typecheck |
-| PERF-001 | plan §Performance | FlatList keyExtractor | component tests |
+| NAV-005 | plan §Folder | `navigation/types.ts` | code review (typecheck enforces) |
+| PERF-001 | plan §Performance | FlatList keyExtractor | code review |
 | PERF-002 | plan §Performance | FastImage install | code review |
 | PERF-003 | plan §Performance | review | code review |
 | PERF-004 | plan §Performance | review | code review |
-| A11Y-001 | plan §A11y | components | a11y tests |
-| A11Y-002 | plan §A11y | styles | a11y tests |
+| A11Y-001 | plan §A11y | components | MANUAL (VoiceOver / TalkBack) |
+| A11Y-002 | plan §A11y | styles | code review |
 | A11Y-003 | plan §A11y | icons + text | code review |
 | DSGN-001 | plan §Token Mapping | design.md ref | code review |
-| DSGN-002 | plan §Token Mapping | tokens | grep CI |
-| DSGN-003 | plan §Folder | `theme/ThemeProvider.tsx` | theme tests |
-| DARK-001 | plan §Token Mapping | useColorScheme | theme tests |
-| TEST-001 | tasks §Phase 5 | hooks + utils | jest |
-| TEST-002 | tasks §Phase 5 | integration | jest |
+| DSGN-002 | plan §Token Mapping | tokens | code review (grep CI) |
+| DSGN-003 | plan §Folder | `theme/ThemeProvider.tsx` | MANUAL (system Settings toggle) |
+| DARK-001 | plan §Token Mapping | useColorScheme | MANUAL |
+| TEST-001 | tasks §Phase 5 | hooks + utils | MUST (4 files) |
+| TEST-002 | tasks §Phase 5 | integration | Integration: ProductDetailScreen.test.tsx |
 | TEST-003 | tasks §Phase 5 | review | code review |
-| MOCK-001 | tasks §Phase 5 | jest.mock patterns | jest |
-| LINT-001 | plan §Folder | `.eslintrc.js` | npm run lint |
+| MOCK-001 | tasks §Phase 5 | jest.mock patterns | IMPL (mocking at repo boundary) |
+| LINT-001 | plan §Folder | `.eslintrc.js` | code review (lint enforces) |
 | LINT-002 | plan §Folder | script | CI |
 | LINT-003 | plan §Folder | script | CI |
 | CI-001 | tasks §Phase 6 | `.github/workflows/ci.yml` | CI run |
-| NATIVE-001 | tasks §Phase 7 | NativeCurrencyFormatter | wrapper tests |
-| EDGE-001..025 | plan §Edge Cases | varies | EDGE-T-001..025 |
+| NATIVE-001 | tasks §Phase 7 | NativeCurrencyFormatter | SHOULD (wrapper tests) |
+| EDGE-010 | plan §Edge Cases | calculateDiscountedPrice | MUST: calculateDiscountedPrice.test.ts |
+| EDGE-011 | plan §Edge Cases | calculateDiscountedPrice | MUST: calculateDiscountedPrice.test.ts |
+| Other EDGE-NNN | plan §Edge Cases | varies | See § Edge Cases table for per-edge classification |
 
 ## 72-Hour Execution Plan
 
@@ -549,10 +617,15 @@ function mapAppError(e: AppError): string {
 | Phase 2 — Data Layer | 8 | httpClient, DTOs, mappers, repos, queryKeys |
 | Phase 3 — Products + Search + Category | 14 | full list experience |
 | Phase 4 — Detail + Favorites | 14 | full secondary experience |
-| Phase 5 — Testing | 8 | >70% coverage, integration test |
-| Phase 6 — Hardening | 8 | a11y, dark mode, ErrorBoundary, CI, README |
+| Phase 5 — Quality | 4 | MUST tests only (see § Testing Strategy); no % coverage target |
+| Phase 6 — Hardening | 10 | a11y, dark mode, ErrorBoundary, CI, README |
 | Phase 7 — Bonus (optional) | 12 | NativeCurrencyFormatter |
-| **Total** | **72** | |
+| **Total** | **70** + buffer | |
+
+Total scope: 70 nominal hours + ~2h buffer absorbed across phases.
+Phase 5 was reduced from 8h to 4h per Testing Strategy v2 (MINIMUM REQUIRED,
+HIGH VALUE TESTING); the freed budget extends Phase 6 (Hardening) where
+CI, README, screenshots, and final validation live.
 
 Critical path: Phase 1 → 2 → 3 → 4 → 5 → 6. Phase 7 only if 6 closes.
 
@@ -583,5 +656,8 @@ A project is DONE when ALL of the following are true:
 - `README.md` complete per `tasks.md` § Phase 6
 - Traceability Matrix in `plan.md` references every MUST
 - CI workflow green
-- Coverage ≥ 70% on `features/` + `shared/`
-- ≥ 1 meaningful integration test (not "renders without crashing")
+- All MUST tests from § Testing Strategy are implemented and passing
+- At least one meaningful integration test exists (not "renders without crashing")
+- SHOULD tests implemented only when time permits after all MUST close
+- Secondary edge cases MAY be validated manually; automated coverage is not
+  a blocker for completion. Proportional to the 72-hour scope.
