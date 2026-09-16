@@ -8,29 +8,29 @@ Priority: P0 (blocker), P1 (must-have), P2 (should), P3 (bonus).
 
 ## Phase 1 — Foundation (8h)
 
-- [ ] T-001 | P0 | — | Create folder skeleton `src/{api,domain/{product,favorites},features/{products,favorites},storage,components,hooks,utils,store,navigation,theme}`
-- [ ] T-002 | P0 | T-001 | Add `tsconfig` paths for `@/*` → `src/*`
-- [ ] T-003 | P0 | T-001 | Install runtime deps: react-navigation/native, native-stack, bottom-tabs, screens, gesture-handler, reanimated, mmkv, fast-image
-- [ ] T-004 | P0 | T-003 | Install dev deps: @testing-library/react-native, @tanstack/react-query, zustand
-- [ ] T-005 | P0 | T-003 | Append `'react-native-reanimated/plugin'` to `babel.config.js` plugins
-- [ ] T-006 | P0 | T-002 | Update `tsconfig.json` strict config
-- [ ] T-007 | P0 | T-001 | Create `src/theme/tokens.ts` with all tokens from plan § Design Token Mapping
-- [ ] T-008 | P0 | T-007 | Create `src/theme/lightTheme.ts`
-- [ ] T-009 | P0 | T-007 | Create `src/theme/darkTheme.ts`
-- [ ] T-010 | P0 | T-007 | Create `src/theme/typography.ts`
-- [ ] T-011 | P0 | T-007 | Create `src/theme/spacing.ts`
-- [ ] T-012 | P0 | T-007 | Create `src/theme/radius.ts`
-- [ ] T-013 | P0 | T-008 | Create `src/theme/ThemeContext.ts` + `useAppTheme`
-- [ ] T-014 | P0 | T-013 | Create `src/theme/ThemeProvider.tsx`
-- [ ] T-015 | P0 | T-001 | Create `src/store/queryClient.ts` with default options from plan
-- [ ] T-016 | P0 | T-001 | Create `AppProviders` ErrorBoundary at `src/AppProviders.tsx`
-- [ ] T-017 | P0 | T-014..T-016 | Compose `src/AppProviders.tsx` with SafeArea + Query + Theme + ErrorBoundary
-- [ ] T-018 | P0 | T-001 | Create `src/navigation/types.ts` with `RootTabParamList`, `ProductsStackParamList`
-- [ ] T-019 | P0 | T-018 | Create `src/navigation/ProductsStack.tsx` with two placeholder screens
-- [ ] T-020 | P0 | T-018 | Create `src/navigation/RootTabs.tsx` with two tabs
-- [ ] T-021 | P0 | T-020 | Wire `App.tsx` → `AppProviders` → `RootTabs`
-- [ ] T-022 | P0 | T-021 | Update package.json scripts: `lint` over `src`, `lint:format` (Prettier check), `format`
-- [ ] T-023 | P0 | T-022 | Add `.eslintrc.js` rule `no-restricted-imports` for `react-native-mmkv` outside `src/storage/`
+- [x] T-001 | P0 | — | Create folder skeleton `src/{api,domain/{product,favorites},features/{products,favorites},storage,components,hooks,utils,store,navigation,theme}`
+- [x] T-002 | P0 | T-001 | Add `tsconfig` paths for `@/*` → `src/*`
+- [x] T-003 | P0 | T-001 | Install runtime deps: react-navigation/native, native-stack, bottom-tabs, screens, gesture-handler, reanimated, mmkv, fast-image
+- [x] T-004 | P0 | T-003 | Install dev deps: @testing-library/react-native, @tanstack/react-query, zustand
+- [x] T-005 | P0 | T-003 | Append `'react-native-reanimated/plugin'` to `babel.config.js` plugins
+- [x] T-006 | P0 | T-002 | Update `tsconfig.json` strict config
+- [x] T-007 | P0 | T-001 | Create `src/theme/tokens.ts` with all tokens from plan § Design Token Mapping
+- [x] T-008 | P0 | T-007 | Create `src/theme/lightTheme.ts`
+- [x] T-009 | P0 | T-007 | Create `src/theme/darkTheme.ts`
+- [x] T-010 | P0 | T-007 | Create `src/theme/typography.ts`
+- [x] T-011 | P0 | T-007 | Create `src/theme/spacing.ts`
+- [x] T-012 | P0 | T-007 | Create `src/theme/radius.ts`
+- [x] T-013 | P0 | T-008 | Create `src/theme/ThemeContext.ts` + `useAppTheme`
+- [x] T-014 | P0 | T-013 | Create `src/theme/ThemeProvider.tsx`
+- [x] T-015 | P0 | T-001 | Create `src/store/queryClient.ts` with default options from plan
+- [x] T-016 | P0 | T-001 | Create `AppProviders` ErrorBoundary at `src/AppProviders.tsx`
+- [x] T-017 | P0 | T-014..T-016 | Compose `src/AppProviders.tsx` with SafeArea + Query + Theme + ErrorBoundary
+- [x] T-018 | P0 | T-001 | Create `src/navigation/types.ts` with `RootTabParamList`, `ProductsStackParamList`
+- [x] T-019 | P0 | T-018 | Create `src/navigation/ProductsStack.tsx` with two placeholder screens
+- [x] T-020 | P0 | T-018 | Create `src/navigation/RootTabs.tsx` with two tabs
+- [x] T-021 | P0 | T-020 | Wire `App.tsx` → `AppProviders` → `RootTabs`
+- [x] T-022 | P0 | T-021 | Update package.json scripts: `lint` over `src`, `lint:format` (Prettier check), `format`
+- [x] T-023 | P0 | T-022 | Add `.eslintrc.js` rule `no-restricted-imports` for `react-native-mmkv` outside `src/storage/`
 - [ ] T-024 | P0 | T-023 | `npm run lint` exit 0
 - [ ] T-025 | P0 | T-023 | `npm run lint:format` exit 0
 - [ ] T-026 | P0 | T-021 | `npm run android` → app opens with two tabs
@@ -38,34 +38,45 @@ Priority: P0 (blocker), P1 (must-have), P2 (should), P3 (bonus).
 
 ## Phase 2 — Data Layer (8h)
 
-- [ ] T-030 | P0 | T-027 | Create `src/api/errors.ts` with NetworkError, TimeoutError, HttpError, ParseError, UnknownAppError
-- [ ] T-031 | P0 | T-030 | Create `mapAppError` in `src/api/errors.ts`
-- [ ] T-032 | P0 | T-030 | Test `mapAppError` for each kind
-- [ ] T-033 | P0 | T-030 | Create `src/api/httpClient.ts` (URL composition, AbortSignal.any, timeout, fetch, error mapping)
-- [ ] T-034 | P0 | T-033 | Create `src/api/config.ts` (baseURL, default timeout)
-- [ ] T-035 | P0 | T-033 | Test httpClient: happy path returns typed T
-- [ ] T-036 | P0 | T-033 | Test httpClient: timeout throws TimeoutError
-- [ ] T-037 | P0 | T-033 | Test httpClient: 500 throws HttpError with status
-- [ ] T-038 | P0 | T-033 | Test httpClient: invalid JSON throws ParseError
-- [ ] T-039 | P0 | T-033 | Test httpClient: signal aborted throws AbortError (not mapped)
-- [ ] T-040 | P0 | T-033 | Test httpClient: query params omit undefined
-- [ ] T-041 | P0 | T-033 | Test httpClient: base URL normalization (trailing slash)
-- [ ] T-042 | P0 | T-001 | Create `src/domain/product/Product.ts`, `ProductCategory.ts`, `PaginatedProducts.ts`, `IProductRepository.ts`
-- [ ] T-043 | P0 | T-001 | Create `src/domain/favorites/FavoriteProduct.ts`, `IFavoritesRepository.ts`
-- [ ] T-044 | P0 | T-042..T-043 | Verify `src/domain/*` has zero non-type imports (lint test INV-006)
-- [ ] T-045 | P0 | T-042 | Create `src/features/products/api/productsDto.ts` (ProductApiDto, ProductsResponseDto, ProductCategoryDto)
-- [ ] T-046 | P0 | T-045 | Create `src/features/products/mappers/productMapper.ts` (mapProductDto, mapProductsResponseDto, mapCategoryDto)
-- [ ] T-047 | P0 | T-046 | Test mappers (INV-001..003)
-- [ ] T-048 | P0 | T-045 | Create `src/features/products/api/productsApi.ts` (5 endpoint methods, all accept signal)
-- [ ] T-049 | P0 | T-048 | Create `src/features/products/repository/DummyJsonProductRepository.ts` (implements IProductRepository)
-- [ ] T-050 | P0 | T-049 | Test DummyJsonProductRepository methods propagate signal
-- [ ] T-051 | P0 | T-049 | Create `src/api/queryKeys.ts` with stable keys
-- [ ] T-052 | P0 | T-051 | Test queryKeys determinism
-- [ ] T-053 | P0 | T-049 | Create `src/features/products/hooks/useCategories.ts`
-- [ ] T-054 | P0 | T-053 | Test useCategories success + error
-- [ ] T-055 | P0 | T-054 | Mount debug screen using `useCategories` to verify wiring
+> **Per Testing Strategy v2** (see `plan.md` § Testing Strategy), test sub-tasks
+> T-032, T-035..T-041, T-047, T-050, T-052, T-054 are **NOT** to be implemented
+> individually. They are consolidated into Phase 5 v2 MUST tests (T-180..T-187).
+> Behavior is validated by implementation review + manual exploration.
+
+- [x] T-030 | P0 | T-027 | Create `src/api/errors.ts` with NetworkError, TimeoutError, HttpError, ParseError, UnknownAppError
+- [x] T-031 | P0 | T-030 | Create `mapAppError` in `src/api/errors.ts`
+- [ ] T-032 | – | T-030 | ~~Test `mapAppError` for each kind~~ — Implementation only; covered by code review (Testing Strategy v2)
+- [x] T-033 | P0 | T-030 | Create `src/api/httpClient.ts` (URL composition, AbortSignal.any, timeout, fetch, error mapping)
+- [x] T-034 | P0 | T-033 | Create `src/api/config.ts` (baseURL, default timeout)
+- [ ] T-035 | – | T-033 | ~~Test httpClient: happy path~~ — IMPL (Testing Strategy v2)
+- [ ] T-036 | – | T-033 | ~~Test httpClient: timeout~~ — MANUAL (Testing Strategy v2)
+- [ ] T-037 | – | T-033 | ~~Test httpClient: 500~~ — IMPL (Testing Strategy v2)
+- [ ] T-038 | – | T-033 | ~~Test httpClient: invalid JSON~~ — IMPL (Testing Strategy v2)
+- [ ] T-039 | – | T-033 | ~~Test httpClient: signal aborted~~ — IMPL (Testing Strategy v2)
+- [ ] T-040 | – | T-033 | ~~Test httpClient: omit undefined~~ — IMPL (Testing Strategy v2)
+- [ ] T-041 | – | T-033 | ~~Test httpClient: trailing slash~~ — IMPL (Testing Strategy v2)
+- [x] T-042 | P0 | T-001 | Create `src/domain/product/Product.ts`, `ProductCategory.ts`, `PaginatedProducts.ts`, `IProductRepository.ts`
+- [x] T-043 | P0 | T-001 | Create `src/domain/favorites/FavoriteProduct.ts`, `IFavoritesRepository.ts`
+- [x] T-044 | P0 | T-042..T-043 | Verify `src/domain/*` has zero non-type imports (lint test INV-006)
+- [x] T-045 | P0 | T-042 | Create `src/features/products/api/productsDto.ts` (ProductApiDto, ProductsResponseDto, ProductCategoryDto)
+- [x] T-046 | P0 | T-045 | Create `src/features/products/mappers/productMapper.ts` (mapProductDto, mapProductsResponseDto, mapCategoryDto)
+- [ ] T-047 | P2 | T-046 | ~~Test mappers (INV-001..003)~~ — SHOULD; only if not covered by `useProducts.test.ts`
+- [x] T-048 | P0 | T-045 | Create `src/features/products/api/productsApi.ts` (5 endpoint methods, all accept signal)
+- [x] T-049 | P0 | T-048 | Create `src/features/products/repository/DummyJsonProductRepository.ts` (implements IProductRepository)
+- [ ] T-050 | – | T-049 | ~~Test DummyJsonProductRepository methods propagate signal~~ — IMPL; validated via useProducts hook integration (Testing Strategy v2)
+- [x] T-051 | P0 | T-049 | Create `src/api/queryKeys.ts` with stable keys
+- [ ] T-052 | – | T-051 | ~~Test queryKeys determinism~~ — IMPL; trivial by inspection (Testing Strategy v2)
+- [x] T-053 | P0 | T-049 | Create `src/features/products/hooks/useCategories.ts`
+- [ ] T-054 | – | T-053 | ~~Test useCategories success + error~~ — IMPL; validated by Bloque D wiring + Phase 3 integration (Testing Strategy v2)
+- [x] T-055 | P0 | T-054 | Mount debug screen using `useCategories` to verify wiring
 
 ## Phase 3 — Products + Search + Category (14h)
+
+> **Per Testing Strategy v2**, granular test sub-tasks (T-061, T-063, T-069,
+> T-071..T-073, T-075..T-087, T-092..T-095, T-097, T-100..T-102, T-105..T-106,
+> T-108) are NOT implemented individually. `useProducts` behavior is covered by
+> Phase 5 v2 MUST test (T-181). `calculateDiscountedPrice` is covered by
+> Phase 5 v2 MUST test (T-183). Component sub-tests are classified MANUAL.
 
 - [ ] T-060 | P0 | T-055 | Create `src/utils/discount.ts` (computeDiscountedPrice, isOnSale)
 - [ ] T-061 | P0 | T-060 | Test discount utils (EDGE-010, EDGE-011)
@@ -127,6 +138,12 @@ Priority: P0 (blocker), P1 (must-have), P2 (should), P3 (bonus).
 
 ## Phase 4 — Detail + Favorites (14h)
 
+> **Per Testing Strategy v2**, granular test sub-tasks (T-123..T-127,
+> T-133..T-138, T-141, T-146..T-150, T-153, T-158, T-176) are NOT implemented
+> individually. `useFavorites` behavior is covered by Phase 5 v2 MUST test
+> (T-182). Favorite flow on detail is covered by the integration test
+> (T-184). MMKV corruption is IMPL-only.
+
 - [ ] T-120 | P0 | T-001 | Create `src/storage/mmkv.ts` with KeyValueStorage interface
 - [ ] T-121 | P0 | T-120 | Define STORAGE_KEYS = { favoritesV1: 'favorites:v1' } in `mmkv.ts`
 - [ ] T-122 | P0 | T-120 | Create `src/features/favorites/repository/MMKVFavoritesRepository.ts` (implements IFavoritesRepository)
@@ -185,22 +202,19 @@ Priority: P0 (blocker), P1 (must-have), P2 (should), P3 (bonus).
 - [ ] T-175 | P0 | T-171 | FavoritesScreen FavoriteButton toggle removes from list (AC-FAV-002)
 - [ ] T-176 | P0 | T-171 | Test FavoritesScreen does NOT call productRepository (FAV-002)
 
-## Phase 5 — Testing & Coverage (8h)
+## Phase 5 — Quality (4h)
 
-- [ ] T-180 | P0 | T-176 | Run `npm test -- --coverage` to baseline
-- [ ] T-181 | P0 | T-180 | Identify untested files in features/ and shared/
-- [ ] T-182 | P0 | T-180 | Add tests for any hook not yet covered
-- [ ] T-183 | P0 | T-180 | Add tests for any util not yet covered
-- [ ] T-184 | P0 | T-180 | Add tests for all mappers
-- [ ] T-185 | P0 | T-180 | Add tests for error mapping
-- [ ] T-186 | P0 | T-180 | Verify coverage ≥ 70% in features/ and shared/
-- [ ] T-187 | P0 | T-176 | Write integration test: ProductsScreen scroll → pagination
-- [ ] T-188 | P0 | T-176 | Write integration test: search typing → request after 350ms
-- [ ] T-189 | P0 | T-176 | Write integration test: category tap clears search
-- [ ] T-190 | P0 | T-176 | Write integration test: favorite tap on ProductsScreen → FavoritesScreen shows item (FAV-003)
-- [ ] T-191 | P0 | T-176 | Write integration test: favorite tap on FavoritesScreen → disappears
-- [ ] T-192 | P0 | T-176 | Add EDGE-T-001..025 tests (one per edge case in plan)
-- [ ] T-193 | P0 | T-192 | `npm test -- --ci` exits 0
+> **MINIMUM REQUIRED, HIGH VALUE TESTING.** See `plan.md` § Testing Strategy.
+> 4 MUST test files + up to 3 SHOULD files. No % coverage target.
+
+- [ ] T-180 | P0 | T-176 | Create `src/features/products/hooks/__tests__/useProducts.test.ts` (initial load, error+retry, pagination, search↔category mutual exclusion)
+- [ ] T-181 | P0 | T-176 | Create `src/features/favorites/hooks/__tests__/useFavorites.test.ts` (add, remove, reactivity, hydration)
+- [ ] T-182 | P0 | T-176 | Create `src/shared/utils/__tests__/calculateDiscountedPrice.test.ts` (discount > 0, discount = 0)
+- [ ] T-183 | P0 | T-176 | Create `src/features/products/screens/__tests__/ProductDetailScreen.test.tsx` (integration: render + tap FavoriteButton → state change)
+- [ ] T-184 | P0 | T-180..T-183 | `npm test -- --ci` exits 0
+- [ ] T-185 | P2 | T-184 | SHOULD: `formatCurrency.test.ts` (only if own logic beyond Intl wrapper)
+- [ ] T-186 | P2 | T-184 | SHOULD: `useDebouncedValue.test.ts` (only if not covered by `useProducts.test.ts`)
+- [ ] T-187 | P2 | T-184 | SHOULD: `productMapper.test.ts` (only if not covered by adjacent hook tests)
 
 ## Phase 6 — Hardening (8h)
 
