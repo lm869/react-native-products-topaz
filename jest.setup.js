@@ -22,4 +22,6 @@ jest.mock('react-native-mmkv', () => {
 
 jest.mock('@d11/react-native-fast-image', () => 'FastImage');
 
+jest.mock('@react-native-vector-icons/material-design-icons', () => 'Icon');
+
 global.__reanimatedWorkletInit = jest.fn();
