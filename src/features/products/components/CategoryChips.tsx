@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   chip: {
-    minHeight: 32,
+    minHeight: 40,
     paddingHorizontal: 16,
     borderRadius: 999,
     borderWidth: 1,
