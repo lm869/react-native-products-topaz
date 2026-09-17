@@ -299,6 +299,42 @@ Priority: P0 (blocker), P1 (must-have), P2 (should), P3 (bonus).
 - [ ] T-238 | P3 | T-236 | Test wrapper: when Native defined → calls native
 - [ ] T-239 | P3 | T-235 | Document in README Bonus Features section
 
+## Phase 10 — Favorites Polish (Stitch pixel-perfect, ~7.5h)
+
+> Reduce gap between current `FavoritesScreen` (functional minimum) and
+> `design/screens/favorites.png` + `design/stitch-reference/favorites_saved_products_atelier_luxury/code.html`.
+> Backdrop-blur nativo descartado (riesgo codegen tardío): translucency via
+> `rgba(...,0.85)`, fidelity ~80%. Stitch copy "Synced with AsyncStorage" se
+> corrige a "Synced locally" porque spec usa MMKV (FAV-001).
+
+### Foundation (1.5h)
+- [ ] T-1001 | P0 | T-128 | Ampliar `FavoriteProduct` con `rating?: number`, `discountPercentage?: number`, `originalPrice?: number` (snapshot autoritativo para FAV-002 — pantalla nunca pega a API). Actualizar `data-model.md`.
+- [ ] T-1002 | P0 | T-1001 | `MMKVFavoritesRepository.isFavoriteShape` + parse tolerar campos extras. Backwards-compat con payloads v1 sin extras.
+- [ ] T-1003 | P0 | T-1001 | `favoritesStore.fromProduct()` capturar `rating`, `discountPercentage`; computar `originalPrice = price / (1 - discount/100)` cuando `discount > 0`.
+- [ ] T-1004 | P0 | T-305 | Tokens nuevos en `tokens.ts` (light+dark pareado): `headerSurface`, `destructiveBg`, `destructiveText`, `snackBg`, `snackText`, `placeholderBg`, `hintBg`.
+- [ ] T-1005 | P0 | T-306 | Typography `displayLg` (32px / 38px / -0.025em / Manrope-Bold) para hero title.
+
+### Componentes nuevos (3h)
+- [ ] T-1010 | P0 | T-128a | Crear `src/components/SwipeableFavoriteRow.tsx` — wrap con `Gesture.Pan()` (gesture-handler) + `useSharedValue` (reanimated 3). Threshold `-40px` reveal `-88px`. Rubberband factor 0.2 sobre `-110`. Botón Delete absolute (right, ancho 96px). `onDelete` callback. Sin `Animated` API.
+- [ ] T-1011 | P0 | T-128a | Crear `src/components/Snackbar.tsx` + `src/hooks/useSnackbar.ts` + `SnackbarProvider`. API: `showSnackbar(message, { action?: { label, onPress }, duration=3000 })`. Slide-up via `withSpring`. Auto-dismiss timer. Sin `Animated` API.
+- [ ] T-1012 | P1 | T-1004 | Crear `src/components/FavoritesHeader.tsx` — translúcido (`headerSurface`), border-bottom `cardBorder`, h-16, avatar person 32px + título 17px Manrope-Bold. NO backdrop blur nativo.
+- [ ] T-1013 | P0 | T-1004 | Crear `src/components/SyncedPill.tsx` — pill con dot pulsante (`useSharedValue` opacity loop 1500ms). Texto "Synced locally".
+- [ ] T-1014 | P1 | T-1004 | Crear `src/components/SwipeHint.tsx` — card con icono `swipe_left` + label-sm. Dismissable local (estado dismissed persistente en sesión).
+
+### Refactors (1.5h)
+- [ ] T-1020 | P0 | T-1001,T-1004,T-1005 | `FavoriteListItem.tsx` enriquecido: thumb con discount badge superpuesto, eyebrow + rating star + valor, title (headline-sm), precio + strike si discount, corazón 44×44 frosted.
+- [ ] T-1021 | P0 | T-1010,T-1012,T-1013,T-1014,T-1020 | `FavoritesScreen.tsx` layout nuevo: `FavoritesHeader` + (pill + clear-all row) + (hero display + counter) + hint + FlatList de `SwipeableFavoriteRow`. EmptyState enriquecido (icono 40px en círculo `placeholderBg`, copy "Items you favorite in the catalog will sync and appear here automatically.").
+- [ ] T-1022 | P0 | T-1021 | Clear All: `Alert.alert` confirmación → iterar `byId` keys → `remove(id)` cada uno → snapshot `lastClearedSnapshot: FavoriteProduct[]` en store (no persistido) → Snackbar "All favorites removed" + Undo.
+- [ ] T-1023 | P0 | T-1010,T-1011 | Swipe delete wiring: row `onDelete` → `remove(id)` + Snackbar "Removed {title}" + action Undo → `add(product)` desde snapshot local del row.
+
+### Misc (0.5h)
+- [ ] T-1030 | P0 | T-128a | `RootTabs.tsx` `FavoritesTabIcon`: reemplazar texto Unicode `♥` por `Icon heart` / `heart-outline`. Filled cuando `favoritesCount > 0`.
+
+### QA (0.5h)
+- [ ] T-1040 | P0 | T-1021 | Screenshot manual light + dark; comparar vs `design/screens/favorites.png`.
+- [ ] T-1041 | P1 | T-1021 | Test integración `FavoritesScreen.test.tsx`: render con 3 favs → verifica hero + counter → swipe-threshold simulado → clear-all → empty.
+- [ ] T-1042 | P1 | T-1010,T-1011 | A11y labels: swipe action button (VoiceOver: "Delete {title}"), snackbar announcement, tab badge.
+
 ## Done Gate
 
 - [ ] T-240 | P0 | T-222 | Run all gates in plan § Definition of Done
