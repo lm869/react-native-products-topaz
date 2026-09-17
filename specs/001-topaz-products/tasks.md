@@ -289,18 +289,22 @@ Priority: P0 (blocker), P1 (must-have), P2 (should), P3 (bonus).
 - [x] T-221 | P0 | T-027 | Build IPA debug (xcodebuild) — **STUB** documented in README, requires Xcode/CocoaPods setup
 - [x] T-222 | P0 | T-220..T-221 | Smoke test both binaries on simulators — **STUB**, requires SDKs
 
-## Phase 9 — Bonus: NativeCurrencyFormatter (12h, optional)
+## Phase 9 — Bonus: NativeCurrencyFormatter (12h, optional) — Kotlin only
 
-- [ ] T-230 | P3 | T-222 | Decide: implement or skip
-- [ ] T-231 | P3 | T-230 | Create `NativeCurrencyFormatter.swift` iOS module
-- [ ] T-232 | P3 | T-230 | Create `NativeCurrencyFormatterModule.kt` Android module
-- [ ] T-233 | P3 | T-231 | Register Swift module in iOS bridge
-- [ ] T-234 | P3 | T-232 | Register Kotlin module in Android package
-- [ ] T-235 | P3 | T-231..T-232 | Create TS wrapper with NativeModules detection
-- [ ] T-236 | P3 | T-235 | Wrapper fallback uses `Intl.NumberFormat`
-- [ ] T-237 | P3 | T-236 | Test wrapper: when Native undefined → fallback path
-- [ ] T-238 | P3 | T-236 | Test wrapper: when Native defined → calls native
-- [ ] T-239 | P3 | T-235 | Document in README Bonus Features section
+> Scope reducido: solo Android (Kotlin). iOS no se cubre. Wrapper TS sigue
+> funcionando en iOS con fallback a `Intl.NumberFormat`. Decisión registrada
+> en Engram (topic `phase9/native-currency-formatter`).
+
+- [x] T-230 | P3 | T-222 | Decide: implement or skip → **Kotlin only** (skip Swift)
+- [-] T-231 | P3 | T-230 | Create `NativeCurrencyFormatter.swift` iOS module — **skipped (Kotlin only)**
+- [x] T-232 | P3 | T-230 | Create `NativeCurrencyFormatterModule.kt` Android module
+- [-] T-233 | P3 | T-231 | Register Swift module in iOS bridge — **skipped (Kotlin only)**
+- [x] T-234 | P3 | T-232 | Register Kotlin module in Android package
+- [x] T-235 | P3 | T-231..T-232 | Create TS wrapper with NativeModules detection
+- [x] T-236 | P3 | T-235 | Wrapper fallback uses `Intl.NumberFormat`
+- [x] T-237 | P3 | T-236 | Test wrapper: when Native undefined → fallback path
+- [x] T-238 | P3 | T-236 | Test wrapper: when Native defined → calls native
+- [x] T-239 | P3 | T-235 | Document in README Bonus Features section
 
 ## Phase 10 — Favorites Polish (Stitch pixel-perfect, ~7.5h)
 

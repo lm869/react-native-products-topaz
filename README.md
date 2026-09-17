@@ -290,6 +290,92 @@ cd ios && xcodebuild \
 | Añadir un util nuevo                    | `src/utils/` (+ test en `__tests__/` al lado) |
 | Modificar UX de errores                 | `src/components/{ErrorState,RetryButton}.tsx`, `src/api/errors.ts` |
 | Rastrear un bug por las capas           | `src/domain/*` → `src/features/*/repository/*` → `src/features/*/hooks/*` → `src/features/*/components/*` |
+| Usar / extender el módulo nativo Kotlin | `src/utils/nativeCurrencyFormatter.ts`, `android/app/src/main/java/com/topazproducts/nativecurrency/` |
+
+---
+
+## Bonus Features
+
+### NativeCurrencyFormatter (Phase 9, opcional)
+
+Wrapper de formateo de moneda con módulo nativo **Android (Kotlin)** y fallback
+a `Intl.NumberFormat` para iOS / mock / errores.
+
+- **Módulo nativo**: `android/app/src/main/java/com/topazproducts/nativecurrency/`
+  - `NativeCurrencyFormatterModule.kt` — `ReactContextBaseJavaModule`. Método
+    `@ReactMethod fun format(amount: Double, currencyCode: String, locale: String, promise: Promise)`
+    usando `java.text.NumberFormat.getCurrencyInstance(Locale.forLanguageTag(locale))`.
+  - `NativeCurrencyFormatterPackage.kt` — `ReactPackage` registrado en
+    `MainApplication.kt` vía `add(NativeCurrencyFormatterPackage())`.
+- **Wrapper TS**: `src/utils/nativeCurrencyFormatter.ts`
+  - `formatCurrencyNative(amount, currency?, locale?)` — async, detecta
+    `NativeModules.NativeCurrencyFormatter`. Si está disponible y `Platform.OS === 'android'`,
+    llama al módulo nativo. Cualquier error / ausencia / plataforma no-Android → fallback
+    a `Intl.NumberFormat` (mismo algoritmo que `formatCurrency`).
+  - `isNativeCurrencyFormatterAvailable()` — feature flag para UIs que quieran
+    mostrar "formato nativo" o esconder trabajo async.
+- **Tests**: `src/utils/__tests__/nativeCurrencyFormatter.test.ts` — 7 casos
+  (fallback Intl, native success, native rejected, iOS bypass, NaN guard, feature flag).
+
+### Demo currency selector (ProductDetailScreen)
+
+Como parte del bonus, `ProductDetailScreen` ahora incluye un **selector visual**
+de currency (`USD | EUR | ARS | JPY`) que permite ver el módulo nativo en
+acción con currencies no-USD.
+
+- **Hook**: `src/utils/useFormattedPrice.ts` — wrapper sobre el wrapper nativo
+  con cache Map module-level. Cache hit → render sync (sin flicker). Cache miss →
+  fallback sync mientras se hace fetch async al módulo nativo.
+- **Conversion**: `src/utils/currencyConversion.ts` — rates **ficticios** hardcoded
+  (`USD=1.0`, `EUR=0.93`, `ARS=1000`, `JPY=150`) para demostrar conversión
+  visible en el demo. **NO son rates de mercado reales**. Disclaimer visible
+  en el badge: `"1 USD = 1000 ARS · via native · Demo rates — not real-time"`.
+- **Tests**: `src/utils/__tests__/currencyConversion.test.ts` (5 casos conversion
+  + 4 casos locale) + `src/utils/__tests__/useFormattedPrice.test.ts` (4 casos).
+
+#### Limitaciones del demo
+
+- Rates hardcoded se desactualizan al instante. Para rates reales habría que
+  integrar una API externa (`frankfurter.app`, `exchangerate.host`, etc.) con
+  fetch + cache — fuera del scope de Phase 9.
+- El selector solo afecta `ProductDetailScreen`. `ProductCard` (lista de
+  productos) y `FavoriteListItem` siguen mostrando USD sin conversión.
+- `ProductDetailScreen` no estaba en el scope original de Phase 9 — fue
+  agregado después para poder demostrar el módulo nativo en uso real.
+
+#### Por qué **solo Android (Kotlin)**
+
+iOS no está cubierto porque `Phase 9` fue declarada bonus opcional y el scope
+se acotó a Kotlin. El wrapper TS sigue funcionando idéntico en iOS — simplemente
+cae a `Intl.NumberFormat` sin pasar por bridge nativo. `formatCurrency()` (sync,
+en `src/utils/currency.ts`) sigue siendo el path usado por los 3 call sites
+actuales (`ProductCard`, `ProductDetailScreen`, `FavoriteListItem`).
+
+> ⚠️ En `ProductDetailScreen` ahora hay una **excepción**: el precio principal
+> y el strike price usan `useFormattedPrice` (async, soporta nativo). El
+> formatter sync `formatCurrency()` se mantiene para los labels de accesibilidad
+> (`a11yLabel` en ProductCard y FavoriteListItem).
+
+#### Por qué **opt-in async** y no refactor de `formatCurrency`
+
+`formatCurrency` es **síncrono** y se llama en render JSX directo. Cambiarlo a
+async obligaría a los 3 consumidores a manejar estado (`useState` + `useEffect`),
+lo que duplicaría renders y complicaría la lógica de accesibilidad. `Intl`
+en JS ya es rápido para el dataset del catálogo (~30 productos visibles a la
+vez). El wrapper async se reserva para futuros casos donde el formato nativo
+aporte valor medible (listas muy largas, animaciones, etc.).
+
+#### API del módulo nativo
+
+```kotlin
+// Kotlin signature
+@ReactMethod
+fun format(amount: Double, currencyCode: String, locale: String, promise: Promise)
+```
+
+- `amount` NaN/Infinity → formatea `0` (consistente con `formatCurrency` JS).
+- `currencyCode` inválido → `promise.reject("E_FORMAT", ...)`.
+- `locale` blank → fallback a `Locale.US`.
 
 ---
 
