@@ -1,128 +1,195 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
-import { useCategories } from '@/features/products/hooks/useCategories';
+import { Screen } from '@/components/Screen';
+import { ThemedScreenHeader } from '@/components/ThemedScreenHeader';
+import { EmptyState } from '@/components/EmptyState';
+import { ErrorState } from '@/components/ErrorState';
+import { RetryButton } from '@/components/RetryButton';
 import { useAppTheme } from '@/theme/ThemeContext';
-import { Icon } from '@/components/Icon';
-import { ThemeToggleButton } from '@/features/settings/components/ThemeToggleButton';
-import type { ProductCategory } from '@/domain/product/ProductCategory';
+import { useDebouncedValue } from '@/features/products/hooks/useDebouncedValue';
+import { useProducts } from '@/features/products/hooks/useProducts';
+import { useCategories } from '@/features/products/hooks/useCategories';
+import { SearchBar } from '@/features/products/components/SearchBar';
+import { CategoryChips } from '@/features/products/components/CategoryChips';
+import { ProductCard } from '@/features/products/components/ProductCard';
+import { ProductSkeleton } from '@/features/products/components/ProductSkeleton';
+import { ProductGridFooter } from '@/features/products/components/ProductGridFooter';
+import type { Product } from '@/domain/product/Product';
+import type { ProductsStackScreenProps } from '@/navigation/types';
 
-export function ProductsScreen(): React.JSX.Element {
+type Props = ProductsStackScreenProps<'Products'>;
+
+export function ProductsScreen({ navigation }: Props): React.JSX.Element {
   const theme = useAppTheme();
-  const { items, isPending, isError, error } = useCategories();
 
-  if (isPending) {
-    return (
-      <View style={[styles.center, { backgroundColor: theme.colors.canvas }]}>
-        <Icon name="loading" size={32} color={theme.colors.accent} />
+  const [rawQuery, setRawQuery] = useState<string>('');
+  const [category, setCategory] = useState<string | null>(null);
+  const debouncedQuery = useDebouncedValue(rawQuery, 350);
+
+  const {
+    items,
+    isPending,
+    isError,
+    error,
+    fetchNextPage,
+    isFetchingNextPage,
+    refetch,
+  } = useProducts({
+    search: debouncedQuery,
+    category,
+  });
+
+  const categories = useCategories();
+
+  const handleCardPress = useCallback(
+    (id: number) => {
+      navigation.navigate('ProductDetail', { productId: id });
+    },
+    [navigation],
+  );
+
+  const handleQueryChange = useCallback((next: string) => {
+    setRawQuery(next);
+    const trimmed = next.trim();
+    if (trimmed.length > 0) {
+      setCategory(null);
+    }
+  }, []);
+
+  const handleCategorySelect = useCallback((slug: string | null) => {
+    setCategory(slug);
+    if (slug !== null) {
+      setRawQuery('');
+    }
+  }, []);
+
+  const handleRetry = useCallback(() => {
+    refetch();
+  }, [refetch]);
+
+  const handleEndReached = useCallback(() => {
+    fetchNextPage();
+  }, [fetchNextPage]);
+
+  const renderItem = useCallback(
+    ({ item }: { item: Product }) => (
+      <ProductCard
+        product={item}
+        isFavorite={false}
+        onPress={handleCardPress}
+      />
+    ),
+    [handleCardPress],
+  );
+
+  const keyExtractor = useCallback((item: Product) => String(item.id), []);
+
+  const showInitialSkeleton = isPending && items.length === 0;
+  const showInlineError = isError && items.length === 0;
+  const showEmpty = !isPending && !isError && items.length === 0;
+
+  let content: React.ReactNode = null;
+  if (showInitialSkeleton) {
+    content = (
+      <View style={styles.skeletonWrap}>
+        <ProductSkeleton count={6} />
       </View>
     );
-  }
-
-  if (isError) {
-    return (
-      <View style={[styles.center, { backgroundColor: theme.colors.canvas }]}>
-        <Icon
-          name="alert-circle"
-          size={32}
-          color={theme.colors.discountBg}
-          variant="outline"
-        />
-        <Text
-          style={[
-            theme.typography.subtitle,
-            styles.errorMsg,
-            { color: theme.colors.text },
-          ]}
-        >
-          {error?.message ?? 'Failed to load categories'}
-        </Text>
-      </View>
+  } else if (showInlineError && error) {
+    content = <ErrorState error={error} onRetry={handleRetry} />;
+  } else if (showEmpty) {
+    content = (
+      <EmptyState
+        icon={debouncedQuery.trim() ? 'magnify' : 'tag-outline'}
+        title={
+          debouncedQuery.trim()
+            ? 'No products match your search'
+            : 'Nothing here yet'
+        }
+        description={
+          debouncedQuery.trim()
+            ? 'Try a different word or browse another category.'
+            : 'Check back soon for new curated items.'
+        }
+        cta={
+          debouncedQuery.trim() || category ? (
+            <RetryButton
+              label="Clear filters"
+              onPress={() => {
+                setRawQuery('');
+                setCategory(null);
+              }}
+            />
+          ) : undefined
+        }
+      />
+    );
+  } else {
+    content = (
+      <FlatList
+        data={items}
+        keyExtractor={keyExtractor}
+        numColumns={2}
+        columnWrapperStyle={styles.row}
+        renderItem={renderItem}
+        onEndReachedThreshold={0.6}
+        onEndReached={handleEndReached}
+        ListFooterComponent={isFetchingNextPage ? <ProductGridFooter /> : null}
+        contentContainerStyle={styles.listContent}
+      />
     );
   }
 
   return (
-    <View style={[styles.root, { backgroundColor: theme.colors.canvas }]}>
-      <View style={styles.headerRow}>
-        <View style={styles.headerCol}>
-          <Text
-            style={[theme.typography.eyebrow, { color: theme.colors.eyebrow }]}
-          >
-            Phase 3 smoke
-          </Text>
-          <Text
-            style={[
-              theme.typography.cardTitle,
-              styles.headerTitle,
-              { color: theme.colors.text },
-            ]}
-          >
-            Manrope SemiBold + MCI
-          </Text>
-          <Text
-            style={[
-              theme.typography.subtitle,
-              styles.headerSub,
-              { color: theme.colors.subtitle },
-            ]}
-          >
-            {items.length} categories
-          </Text>
-        </View>
-        <ThemeToggleButton />
+    <Screen edges={['left', 'right', 'bottom']}>
+      <ThemedScreenHeader title="Products" />
+      <View style={styles.subtitleWrap}>
+        <Text
+          style={[
+            theme.typography.subtitle,
+            styles.subtitle,
+            { color: theme.colors.subtitle },
+          ]}
+        >
+          Discover curated items from independent makers.
+        </Text>
       </View>
-      <FlatList
-        data={items}
-        keyExtractor={(item: ProductCategory) => item.slug}
-        renderItem={({ item }) => (
-          <View style={styles.row}>
-            <Icon name="tag" size={20} color={theme.colors.accent} />
-            <Text
-              style={[
-                theme.typography.cardTitle,
-                styles.rowTitle,
-                { color: theme.colors.text },
-              ]}
-            >
-              {item.name}
-            </Text>
-            <Text
-              style={[
-                theme.typography.subtitle,
-                styles.rowSlug,
-                { color: theme.colors.textMuted },
-              ]}
-            >
-              {item.slug}
-            </Text>
-          </View>
-        )}
-        contentContainerStyle={styles.list}
-      />
-    </View>
+      <SearchBar value={rawQuery} onChangeText={handleQueryChange} />
+      <View style={styles.searchChipsWrap}>
+        <CategoryChips
+          categories={categories.items}
+          selected={category}
+          onSelect={handleCategorySelect}
+        />
+      </View>
+      <View style={styles.body}>{content}</View>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1 },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  errorMsg: { marginTop: 12 },
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    padding: 20,
+  subtitleWrap: {
+    paddingHorizontal: 20,
+    paddingTop: 0,
+    paddingBottom: 12,
   },
-  headerCol: { flex: 1 },
-  headerTitle: { marginTop: 4 },
-  headerSub: { marginTop: 4 },
-  list: { paddingHorizontal: 20, paddingBottom: 20 },
+  searchChipsWrap: {
+    paddingTop: 10,
+    paddingBottom: 10,
+  },
+  subtitle: {},
+  body: {
+    flex: 1,
+  },
+  listContent: {
+    paddingHorizontal: 13,
+    paddingBottom: 24,
+  },
   row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 14,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#ccc',
+    gap: 14,
+    marginBottom: 14,
   },
-  rowTitle: { marginLeft: 12 },
-  rowSlug: { marginLeft: 'auto' },
+  skeletonWrap: {
+    paddingHorizontal: 13,
+  },
 });

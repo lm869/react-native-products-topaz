@@ -35,12 +35,12 @@ export function RootTabs(): React.JSX.Element {
       <Tab.Screen
         name="ProductsTab"
         component={ProductsStack}
-        options={{ title: 'Products', tabBarIcon: ProductsTabIcon }}
+        options={{ tabBarIcon: ProductsTabIcon }}
       />
       <Tab.Screen
         name="FavoritesTab"
         component={FavoritesScreen}
-        options={{ title: 'Favorites', tabBarIcon: FavoritesTabIcon }}
+        options={{ tabBarIcon: FavoritesTabIcon }}
       />
     </Tab.Navigator>
   );

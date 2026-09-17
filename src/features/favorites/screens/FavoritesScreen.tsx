@@ -1,15 +1,20 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { Screen } from '@/components/Screen';
+import { ThemedScreenHeader } from '@/components/ThemedScreenHeader';
 import { useAppTheme } from '@/theme/ThemeContext';
 
 export function FavoritesScreen(): React.JSX.Element {
   const theme = useAppTheme();
   return (
-    <View style={[styles.root, { backgroundColor: theme.colors.canvas }]}>
-      <Text style={[styles.title, { color: theme.colors.text }]}>
-        Favorites
-      </Text>
-    </View>
+    <Screen edges={['left', 'right', 'bottom']}>
+      <ThemedScreenHeader title="Favorites" />
+      <View style={[styles.root, { backgroundColor: theme.colors.canvas }]}>
+        <Text style={[styles.title, { color: theme.colors.text }]}>
+          Favorites
+        </Text>
+      </View>
+    </Screen>
   );
 }
 

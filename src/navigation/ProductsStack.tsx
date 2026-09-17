@@ -8,7 +8,7 @@ const Stack = createNativeStackNavigator<ProductsStackParamList>();
 
 export function ProductsStack(): React.JSX.Element {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen
         name="Products"
         component={ProductsScreen}
