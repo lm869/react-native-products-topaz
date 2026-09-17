@@ -43,6 +43,7 @@ export async function request<T>(config: RequestConfig): Promise<T> {
   const timeoutMs = config.timeoutMs ?? apiConfig.defaultTimeoutMs;
 
   const url = composeUrl(baseURL, config.path) + composeQuery(config.query);
+  console.log(`[http] → ${method} ${url}`);
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
@@ -63,6 +64,7 @@ export async function request<T>(config: RequestConfig): Promise<T> {
   } catch (error) {
     const aborted = controller.signal.aborted;
     const userAborted = config.signal?.aborted ?? false;
+    console.log(`[http] ✕ ${method} ${url}`, { aborted, userAborted, error });
     if (userAborted) {
       throw error instanceof Error ? error : new Error('aborted');
     }
@@ -78,6 +80,7 @@ export async function request<T>(config: RequestConfig): Promise<T> {
   }
 
   if (!response.ok) {
+    console.log(`[http] ✕ ${method} ${url} → HTTP ${response.status}`);
     throw new HttpError(response.status, response.statusText);
   }
 
@@ -85,8 +88,10 @@ export async function request<T>(config: RequestConfig): Promise<T> {
   try {
     payload = await response.json();
   } catch (error) {
+    console.log(`[http] ✕ ${method} ${url} → parse error`, error);
     throw new ParseError(error);
   }
 
+  console.log(`[http] ✓ ${method} ${url} →`, payload);
   return payload as T;
 }

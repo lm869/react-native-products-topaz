@@ -1,3 +1,4 @@
+import type { NavigatorScreenParams } from '@react-navigation/native';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
@@ -7,7 +8,7 @@ export type ProductsStackParamList = {
 };
 
 export type RootTabParamList = {
-  ProductsTab: undefined;
+  ProductsTab: NavigatorScreenParams<ProductsStackParamList> | undefined;
   FavoritesTab: undefined;
 };
 
