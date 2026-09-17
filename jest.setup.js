@@ -20,8 +20,20 @@ jest.mock('react-native-mmkv', () => {
   };
 });
 
-jest.mock('@d11/react-native-fast-image', () => 'FastImage');
+jest.mock('@d11/react-native-fast-image', () => {
+  const React = require('react');
+  const FastImage = React.forwardRef((props, ref) =>
+    React.createElement('FastImage', { ...props, ref }),
+  );
+  FastImage.resizeMode = { contain: 'contain', cover: 'cover', stretch: 'stretch', center: 'center' };
+  FastImage.priority = { low: 'low', normal: 'normal', high: 'high' };
+  FastImage.cacheControl = { immutable: 'immutable', web: 'web', cacheOnly: 'cacheOnly' };
+  return { __esModule: true, default: FastImage, FastImage };
+});
 
-jest.mock('@react-native-vector-icons/material-design-icons', () => 'Icon');
+jest.mock('@react-native-vector-icons/material-design-icons', () => ({
+  MaterialDesignIcons: 'MaterialDesignIcons',
+  Icon: 'Icon',
+}));
 
 global.__reanimatedWorkletInit = jest.fn();
