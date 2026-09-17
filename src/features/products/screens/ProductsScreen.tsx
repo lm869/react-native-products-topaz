@@ -73,11 +73,7 @@ export function ProductsScreen({ navigation }: Props): React.JSX.Element {
 
   const renderItem = useCallback(
     ({ item }: { item: Product }) => (
-      <ProductCard
-        product={item}
-        isFavorite={false}
-        onPress={handleCardPress}
-      />
+      <ProductCard product={item} onPress={handleCardPress} />
     ),
     [handleCardPress],
   );

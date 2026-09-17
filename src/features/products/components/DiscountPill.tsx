@@ -39,8 +39,8 @@ export function DiscountPill({ discountPercentage }: Props): React.JSX.Element {
 const styles = StyleSheet.create({
   pill: {
     position: 'absolute',
-    top: 8,
-    left: 8,
+    top: 10,
+    left: 10,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 999,

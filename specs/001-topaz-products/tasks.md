@@ -31,8 +31,8 @@ Priority: P0 (blocker), P1 (must-have), P2 (should), P3 (bonus).
 - [x] T-021 | P0 | T-020 | Wire `App.tsx` → `AppProviders` → `RootTabs`
 - [x] T-022 | P0 | T-021 | Update package.json scripts: `lint` over `src`, `lint:format` (Prettier check), `format`
 - [x] T-023 | P0 | T-022 | Add `.eslintrc.js` rule `no-restricted-imports` for `react-native-mmkv` outside `src/storage/`
-- [ ] T-024 | P0 | T-023 | `npm run lint` exit 0
-- [ ] T-025 | P0 | T-023 | `npm run lint:format` exit 0
+- [x] T-024 | P0 | T-023 | `npm run lint` exit 0
+- [x] T-025 | P0 | T-023 | `npm run lint:format` exit 0
 - [ ] T-026 | P0 | T-021 | `npm run android` → app opens with two tabs
 - [ ] T-027 | P0 | T-021 | `npm run ios` → app opens with two tabs
 
@@ -77,14 +77,14 @@ Priority: P0 (blocker), P1 (must-have), P2 (should), P3 (bonus).
 > `spacing.ts`, `radius.ts` con keys nuevas. Usa rangos T-3xx para no colisionar
 > con rangos existentes.
 
-- [ ] T-300 | P0 | T-001 | Crear `assets/fonts/` en raíz + copiar `Manrope-{Regular,Medium,SemiBold,Bold}.ttf`
-- [ ] T-301 | P0 | T-300 | Crear `react-native.config.js` raíz con `module.exports = { assets: ['./assets/fonts'] }`
-- [ ] T-302 | P0 | T-301 | Correr `npx react-native-asset` (linkea iOS Info.plist UIAppFonts + Android assets/fonts)
-- [ ] T-303 | P0 | T-302 | `npm install @react-native-vector-icons/material-design-icons` + `npx pod-install`
-- [ ] T-304 | P0 | T-303 | Crear `src/components/Icon.tsx` — wrapper MCI (`name`, `size`, `color`, `variant: 'filled'|'outline'`)
-- [ ] T-305 | P0 | T-013 | Extender `src/theme/tokens.ts` con 18 colores nuevos (subtitle, themeToggleBg, searchBg/Focus/Border, focusRing, cardBorder, imageBg, discountBg/Text/Border, favoriteFrosted/BorderActive/BorderInactive, eyebrow, priceStrike, tabActive/Inactive/Indicator, tabBadge). Light + dark pareado. Phase 1 keys intactas.
-- [ ] T-306 | P0 | T-305 | Extender `src/theme/typography.ts` con 9 keys (eyebrow, eyebrowSm, cardTitle, searchInput, subtitle, priceMain, priceStrike, footerLabel, screenTitle). `fontFamily: 'Manrope-*'` solo en keys nuevas; Phase 1 keys conservan system font.
-- [ ] T-307 | P2 | T-305 | Agregar `spacing.gutterSm` (14) + `spacing.avatar` (8) a `spacing.ts`; `radius.image` (12) a `radius.ts`
+- [x] T-300 | P0 | T-001 | Crear `assets/fonts/` en raíz + copiar `Manrope-{Regular,Medium,SemiBold,Bold}.ttf`
+- [x] T-301 | P0 | T-300 | Crear `react-native.config.js` raíz con `module.exports = { assets: ['./assets/fonts'] }`
+- [x] T-302 | P0 | T-301 | Correr `npx react-native-asset` (linkea iOS Info.plist UIAppFonts + Android assets/fonts)
+- [x] T-303 | P0 | T-302 | `npm install @react-native-vector-icons/material-design-icons` + `npx pod-install`
+- [x] T-304 | P0 | T-303 | Crear `src/components/Icon.tsx` — wrapper MCI (`name`, `size`, `color`, `variant: 'filled'|'outline'`)
+- [x] T-305 | P0 | T-013 | Extender `src/theme/tokens.ts` con 18 colores nuevos (subtitle, themeToggleBg, searchBg/Focus/Border, focusRing, cardBorder, imageBg, discountBg/Text/Border, favoriteFrosted/BorderActive/BorderInactive, eyebrow, priceStrike, tabActive/Inactive/Indicator, tabBadge). Light + dark pareado. Phase 1 keys intactas.
+- [x] T-306 | P0 | T-305 | Extender `src/theme/typography.ts` con 9 keys (eyebrow, eyebrowSm, cardTitle, searchInput, subtitle, priceMain, priceStrike, footerLabel, screenTitle). `fontFamily: 'Manrope-*'` solo en keys nuevas; Phase 1 keys conservan system font.
+- [x] T-307 | P2 | T-305 | Agregar `spacing.gutterSm` (14) + `spacing.avatar` (8) a `spacing.ts`; `radius.image` (12) a `radius.ts`
 - [ ] T-308 | P0 | T-306,T-304,T-302 | Smoke: app arranca, glyph MCI visible en pantalla de prueba, Manrope aplica en keys nuevos, lint + lint:format + typecheck exit 0
 
 ## Phase 4 — Theme Override (3h)
@@ -93,12 +93,12 @@ Priority: P0 (blocker), P1 (must-have), P2 (should), P3 (bonus).
 > manual. **Único Phase 1 file tocado**: `src/AppProviders.tsx` (1 wrap).
 > ThemeProvider, ThemeContext, useAppTheme quedan intactos. Usa rangos T-4xx.
 
-- [ ] T-400 | P0 | T-001 | Crear `src/storage/mmkv.ts` con `KeyValueStorage` interface + `STORAGE_KEYS = { favoritesV1: 'favorites:v1', settingsV1: 'settings:v1' }`. Único archivo que importa `react-native-mmkv`.
-- [ ] T-401 | P0 | T-400 | Crear `src/features/settings/store/themeStore.ts` (Zustand + `persist` via MMKV en `settingsV1`): `{mode: 'system'|'light'|'dark', setMode(m)}`
-- [ ] T-402 | P0 | T-401 | Crear `src/features/settings/hooks/useThemeOverride.ts` — expone `{mode, setMode, cycleMode}`
-- [ ] T-403 | P0 | T-402,T-013 | Crear `src/theme/ThemeOverrideProvider.tsx`: `useContext(ThemeContext)` + `mode` → derivar `effectiveTheme` → `<ThemeContext.Provider value={effectiveTheme}>`. NO modifica `ThemeProvider.tsx`.
-- [ ] T-404 | P0 | T-403,T-304 | Crear `src/features/settings/components/ThemeToggleButton.tsx` — 32×32 circle, glyph MCI `weather-sunny`/`weather-night`, hit 44×44, llama `cycleMode`
-- [ ] T-405 | P0 | T-404 | **Modificar `src/AppProviders.tsx`** — wrap children dentro de `<ThemeProvider>` con `<ThemeOverrideProvider>` (1 línea). Único Phase 1 file tocado.
+- [x] T-400 | P0 | T-001 | Crear `src/storage/mmkv.ts` con `KeyValueStorage` interface + `STORAGE_KEYS = { favoritesV1: 'favorites:v1', settingsV1: 'settings:v1' }`. Único archivo que importa `react-native-mmkv`.
+- [x] T-401 | P0 | T-400 | Crear `src/features/settings/store/themeStore.ts` (Zustand + `persist` via MMKV en `settingsV1`): `{mode: 'system'|'light'|'dark', setMode(m)}`
+- [x] T-402 | P0 | T-401 | Crear `src/features/settings/hooks/useThemeOverride.ts` — expone `{mode, setMode, cycleMode}`
+- [x] T-403 | P0 | T-402,T-013 | Crear `src/theme/ThemeOverrideProvider.tsx`: `useContext(ThemeContext)` + `mode` → derivar `effectiveTheme` → `<ThemeContext.Provider value={effectiveTheme}>`. NO modifica `ThemeProvider.tsx`.
+- [x] T-404 | P0 | T-403,T-304 | Crear `src/features/settings/components/ThemeToggleButton.tsx` — 32×32 circle, glyph MCI `weather-sunny`/`weather-night`, hit 44×44, llama `cycleMode`
+- [x] T-405 | P0 | T-404 | **Modificar `src/AppProviders.tsx`** — wrap children dentro de `<ThemeProvider>` con `<ThemeOverrideProvider>` (1 línea). Único Phase 1 file tocado.
 - [ ] T-406 | P0 | T-405 | Smoke: toggle cambia scheme runtime, persiste tras cold start (kill + reopen), lint + lint:format + typecheck exit 0
 
 ## Phase 5 — Products + Search + Category (14h)
@@ -112,66 +112,66 @@ Priority: P0 (blocker), P1 (must-have), P2 (should), P3 (bonus).
 > Phase 5 consume artifacts de Phase 3 (tokens, font, Icon) y Phase 4
 > (ThemeToggleButton, theme override). Cero modificaciones a Phase 1/2.
 
-- [ ] T-060 | P0 | T-305 | Crear `src/utils/discount.ts` (computeDiscountedPrice, isOnSale)
-- [ ] T-061 | P0 | T-060 | Test discount utils (EDGE-010, EDGE-011) — IMPL only per v2
-- [ ] T-062 | P0 | T-060 | Crear `src/utils/currency.ts` (formatCurrency)
-- [ ] T-063 | P0 | T-062 | Test currency util — IMPL only per v2
-- [ ] T-064 | P0 | T-060 | Crear `src/utils/truncate.ts`
-- [ ] T-065 | P0 | T-305,T-406 | Crear `src/components/Screen.tsx` (SafeAreaView + bg `colors.canvas`)
-- [ ] T-066 | P0 | T-065,T-304 | Crear `src/components/EmptyState.tsx` (ícono MCI + título + descripción + slot CTA)
-- [ ] T-067 | P0 | T-066,T-304 | Crear `src/components/ErrorState.tsx` (recibe AppError, usa mapAppError + RetryButton)
-- [ ] T-068 | P0 | T-067,T-305 | Crear `src/components/RetryButton.tsx` (ghost button 44×44)
-- [ ] T-069 | P0 | T-067 | Test ErrorState mapping — IMPL only per v2
-- [ ] T-070 | P0 | T-065,T-305 | Crear `src/features/products/hooks/useDebouncedValue.ts` (350ms default)
-- [ ] T-071 | – | T-070 | ~~Test useDebouncedValue: emits after 350ms~~ — IMPL only per v2
-- [ ] T-072 | – | T-070 | ~~Test useDebouncedValue: rapid changes emit only last (EDGE-015)~~ — IMPL only per v2
-- [ ] T-073 | – | T-070 | ~~Test useDebouncedValue: empty string treated as empty~~ — IMPL only per v2
-- [ ] T-074 | P0 | T-055,T-070,T-305 | Crear `src/features/products/hooks/useProducts.ts` con state machine ALL|SEARCHING|CATEGORY + `useInfiniteQuery` con signal + mutual exclusion search↔category
-- [ ] T-075 | – | T-074 | ~~Test useProducts: initial load shows skeletons (AC-PROD-001)~~ — IMPL only per v2
-- [ ] T-076 | – | T-074 | ~~Test useProducts: success returns items + hasNextPage~~ — IMPL only per v2
-- [ ] T-077 | – | T-074 | ~~Test useProducts: error returns AppError (AC-ERR-001)~~ — IMPL only per v2
-- [ ] T-078 | – | T-074 | ~~Test useProducts: retry fires new request~~ — IMPL only per v2
-- [ ] T-079 | – | T-074 | ~~Test useProducts: fetchNextPage increments skip (AC-PROD-002)~~ — IMPL only per v2
-- [ ] T-080 | – | T-074 | ~~Test useProducts: stops at total (AC-PROD-003, EDGE-014)~~ — IMPL only per v2
-- [ ] T-081 | – | T-074 | ~~Test useProducts: search debounce 350ms (AC-SEARCH-001)~~ — IMPL only per v2
-- [ ] T-082 | – | T-074 | ~~Test useProducts: search clears category (AC-SEARCH-004)~~ — IMPL only per v2
-- [ ] T-083 | – | T-074 | ~~Test useProducts: category clears search (AC-CAT-002)~~ — IMPL only per v2
-- [ ] T-084 | – | T-074 | ~~Test useProducts: cancellation on rapid search (AC-SEARCH-002, EDGE-015)~~ — IMPL only per v2
-- [ ] T-085 | – | T-074 | ~~Test useProducts: empty response → EmptyState (EDGE-006)~~ — IMPL only per v2
-- [ ] T-086 | – | T-074 | ~~Test useProducts: 404 search → EmptyState specific~~ — IMPL only per v2
-- [ ] T-087 | – | T-074 | ~~Test useProducts: navigation away aborts signal (EDGE-020)~~ — IMPL only per v2
-- [ ] T-117 | P0 | T-305,T-304,T-406 | Crear `src/features/products/components/ScreenHeader.tsx` — `position: absolute, top: 0, bg colors.canvas` sólido (sin blur), title izq + `ThemeToggleButton` der, height 64 + safe-area top
-- [ ] T-118 | P0 | T-305 | Crear `src/features/products/components/DiscountPill.tsx` (pill top-left, conditional `discountPercentage > 0`)
-- [ ] T-119 | P0 | T-305,T-304 | Crear `src/features/products/components/FavoriteIndicator.tsx` — stub visual frosted circle 32 con hit 44×44, glyph MCI `heart`/`heart-outline`, prop `isFavorite: boolean`, sin lógica de toggle. **Phase 6 lo conecta.**
-- [ ] T-088 | P0 | T-118,T-119,T-305,T-304,T-306 | Crear `src/features/products/components/ProductCard.tsx` con estructura Stitch (image aspectRatio 1 + DiscountPill + FavoriteIndicator + eyebrow + title truncate + prices)
-- [ ] T-089 | P0 | T-088 | ProductCard usa theme tokens only (no hardcoded colors) — verificación grep + lint
-- [ ] T-090 | P0 | T-088 | ProductCard `React.memo(id, isFavorite)`
-- [ ] T-091 | P0 | T-088 | ProductCard a11y: label, role, hint
-- [ ] T-092 | – | T-088 | ~~Test ProductCard: renders all fields~~ — MANUAL per v2
-- [ ] T-093 | – | T-088 | ~~Test ProductCard: long title truncated (EDGE-008)~~ — MANUAL per v2
-- [ ] T-094 | – | T-088 | ~~Test ProductCard: rating=0 hides stars (EDGE-012)~~ — MANUAL per v2
-- [ ] T-095 | – | T-088 | ~~Test ProductCard: price=0 renders "$0.00" (EDGE-010)~~ — MANUAL per v2
-- [ ] T-096 | P0 | T-088,T-305 | Crear `src/features/products/components/ProductSkeleton.tsx` (altura idéntica a ProductCard, sin layout shift)
-- [ ] T-097 | – | T-096 | ~~Test skeleton height equals card height (AC-LOAD-001)~~ — IMPL per v2
-- [ ] T-098 | P0 | T-305,T-304 | Crear `src/features/products/components/CategoryChips.tsx` (horizontal ScrollView, "All" + dynamic, rounded-full)
-- [ ] T-099 | P0 | T-098 | CategoryChips a11y: `accessibilityState.selected`, label = name
-- [ ] T-100 | – | T-098 | ~~Test CategoryChips: All + categories from useCategories~~ — MANUAL per v2
-- [ ] T-101 | – | T-098 | ~~Test CategoryChips: tapping chip fires onSelect (AC-CAT-001)~~ — MANUAL per v2
-- [ ] T-102 | – | T-098 | ~~Test CategoryChips: a11y selected state changes~~ — MANUAL per v2
-- [ ] T-103 | P0 | T-305,T-304 | Crear `src/features/products/components/SearchBar.tsx` (icon MCI `magnify` izq + input + clear MCI `close` der + focus state)
-- [ ] T-104 | P0 | T-103 | SearchBar a11y: `accessibilityRole=search`, label "Search products"
-- [ ] T-105 | – | T-103 | ~~Test SearchBar: typing updates rawQuery~~ — MANUAL per v2
-- [ ] T-106 | – | T-103 | ~~Test SearchBar: whitespace-only treated as empty~~ — MANUAL per v2
-- [ ] T-107 | P0 | T-305,T-304 | Crear `src/features/products/components/ProductGridFooter.tsx` (3 dots Reanimated bouncing + label "Fetching more curated items…")
-- [ ] T-108 | – | T-107 | ~~Test ProductGridFooter: spinner shown only when fetching next~~ — MANUAL per v2
-- [ ] T-109 | P0 | T-088,T-117 | Reescribir `src/features/products/screens/ProductsScreen.tsx` completo: ScreenHeader absoluto + SearchSubtitle + SearchBar + CategoryChips + grid 2-col + footer
-- [ ] T-110 | P0 | T-109 | FlatList `numColumns={2}`, `columnWrapperStyle` gap=`spacing.gutterSm`, `keyExtractor={p => String(p.id)}`
-- [ ] T-111 | P0 | T-109 | `onEndReached` → `fetchNextPage`, threshold 0.6
-- [ ] T-112 | P0 | T-109 | Skeleton en `isPending` sin layout shift (6 cards)
-- [ ] T-113 | P0 | T-109 | EmptyState cuando `items.length === 0 && !isPending`
-- [ ] T-114 | P0 | T-109 | ErrorState + RetryButton en error
-- [ ] T-115 | P0 | T-109 | `navigation.navigate('ProductDetail', { id })` en card press
-- [ ] T-116 | P0 | T-109 | Validar manualmente con Slow 3G para comportamiento de cancelación (EDGE-020)
+- [x] T-060 | P0 | T-305 | Crear `src/utils/discount.ts` (computeDiscountedPrice, isOnSale)
+- [x] T-061 | P0 | T-060 | Test discount utils (EDGE-010, EDGE-011) — IMPL only per v2
+- [x] T-062 | P0 | T-060 | Crear `src/utils/currency.ts` (formatCurrency)
+- [x] T-063 | P0 | T-062 | Test currency util — IMPL only per v2
+- [x] T-064 | P0 | T-060 | Crear `src/utils/truncate.ts`
+- [x] T-065 | P0 | T-305,T-406 | Crear `src/components/Screen.tsx` (SafeAreaView + bg `colors.canvas`)
+- [x] T-066 | P0 | T-065,T-304 | Crear `src/components/EmptyState.tsx` (ícono MCI + título + descripción + slot CTA)
+- [x] T-067 | P0 | T-066,T-304 | Crear `src/components/ErrorState.tsx` (recibe AppError, usa mapAppError + RetryButton)
+- [x] T-068 | P0 | T-067,T-305 | Crear `src/components/RetryButton.tsx` (ghost button 44×44)
+- [x] T-069 | P0 | T-067 | Test ErrorState mapping — IMPL only per v2
+- [x] T-070 | P0 | T-065,T-305 | Crear `src/features/products/hooks/useDebouncedValue.ts` (350ms default)
+- [x] T-071 | – | T-070 | ~~Test useDebouncedValue: emits after 350ms~~ — IMPL only per v2
+- [x] T-072 | – | T-070 | ~~Test useDebouncedValue: rapid changes emit only last (EDGE-015)~~ — IMPL only per v2
+- [x] T-073 | – | T-070 | ~~Test useDebouncedValue: empty string treated as empty~~ — IMPL only per v2
+- [x] T-074 | P0 | T-055,T-070,T-305 | Crear `src/features/products/hooks/useProducts.ts` con state machine ALL|SEARCHING|CATEGORY + `useInfiniteQuery` con signal + mutual exclusion search↔category
+- [x] T-075 | – | T-074 | ~~Test useProducts: initial load shows skeletons (AC-PROD-001)~~ — IMPL only per v2
+- [x] T-076 | – | T-074 | ~~Test useProducts: success returns items + hasNextPage~~ — IMPL only per v2
+- [x] T-077 | – | T-074 | ~~Test useProducts: error returns AppError (AC-ERR-001)~~ — IMPL only per v2
+- [x] T-078 | – | T-074 | ~~Test useProducts: retry fires new request~~ — IMPL only per v2
+- [x] T-079 | – | T-074 | ~~Test useProducts: fetchNextPage increments skip (AC-PROD-002)~~ — IMPL only per v2
+- [x] T-080 | – | T-074 | ~~Test useProducts: stops at total (AC-PROD-003, EDGE-014)~~ — IMPL only per v2
+- [x] T-081 | – | T-074 | ~~Test useProducts: search debounce 350ms (AC-SEARCH-001)~~ — IMPL only per v2
+- [x] T-082 | – | T-074 | ~~Test useProducts: search clears category (AC-SEARCH-004)~~ — IMPL only per v2
+- [x] T-083 | – | T-074 | ~~Test useProducts: category clears search (AC-CAT-002)~~ — IMPL only per v2
+- [x] T-084 | – | T-074 | ~~Test useProducts: cancellation on rapid search (AC-SEARCH-002, EDGE-015)~~ — IMPL only per v2
+- [x] T-085 | – | T-074 | ~~Test useProducts: empty response → EmptyState (EDGE-006)~~ — IMPL only per v2
+- [x] T-086 | – | T-074 | ~~Test useProducts: 404 search → EmptyState specific~~ — IMPL only per v2
+- [x] T-087 | – | T-074 | ~~Test useProducts: navigation away aborts signal (EDGE-020)~~ — IMPL only per v2
+- [x] T-117 | P0 | T-305,T-304,T-406 | Crear `src/features/products/components/ScreenHeader.tsx` — `position: absolute, top: 0, bg colors.canvas` sólido (sin blur), title izq + `ThemeToggleButton` der, height 64 + safe-area top
+- [x] T-118 | P0 | T-305 | Crear `src/features/products/components/DiscountPill.tsx` (pill top-left, conditional `discountPercentage > 0`)
+- [x] T-119 | P0 | T-305,T-304 | Crear `src/features/products/components/FavoriteIndicator.tsx` — stub visual frosted circle 32 con hit 44×44, glyph MCI `heart`/`heart-outline`, prop `isFavorite: boolean`, sin lógica de toggle. **Phase 6 lo conecta.**
+- [x] T-088 | P0 | T-118,T-119,T-305,T-304,T-306 | Crear `src/features/products/components/ProductCard.tsx` con estructura Stitch (image aspectRatio 1 + DiscountPill + FavoriteIndicator + eyebrow + title truncate + prices)
+- [x] T-089 | P0 | T-088 | ProductCard usa theme tokens only (no hardcoded colors) — verificación grep + lint
+- [x] T-090 | P0 | T-088 | ProductCard `React.memo(id, isFavorite)`
+- [x] T-091 | P0 | T-088 | ProductCard a11y: label, role, hint
+- [x] T-092 | – | T-088 | ~~Test ProductCard: renders all fields~~ — MANUAL per v2
+- [x] T-093 | – | T-088 | ~~Test ProductCard: long title truncated (EDGE-008)~~ — MANUAL per v2
+- [x] T-094 | – | T-088 | ~~Test ProductCard: rating=0 hides stars (EDGE-012)~~ — MANUAL per v2
+- [x] T-095 | – | T-088 | ~~Test ProductCard: price=0 renders "$0.00" (EDGE-010)~~ — MANUAL per v2
+- [x] T-096 | P0 | T-088,T-305 | Crear `src/features/products/components/ProductSkeleton.tsx` (altura idéntica a ProductCard, sin layout shift)
+- [x] T-097 | – | T-096 | ~~Test skeleton height equals card height (AC-LOAD-001)~~ — IMPL per v2
+- [x] T-098 | P0 | T-305,T-304 | Crear `src/features/products/components/CategoryChips.tsx` (horizontal ScrollView, "All" + dynamic, rounded-full)
+- [x] T-099 | P0 | T-098 | CategoryChips a11y: `accessibilityState.selected`, label = name
+- [x] T-100 | – | T-098 | ~~Test CategoryChips: All + categories from useCategories~~ — MANUAL per v2
+- [x] T-101 | – | T-098 | ~~Test CategoryChips: tapping chip fires onSelect (AC-CAT-001)~~ — MANUAL per v2
+- [x] T-102 | – | T-098 | ~~Test CategoryChips: a11y selected state changes~~ — MANUAL per v2
+- [x] T-103 | P0 | T-305,T-304 | Crear `src/features/products/components/SearchBar.tsx` (icon MCI `magnify` izq + input + clear MCI `close` der + focus state)
+- [x] T-104 | P0 | T-103 | SearchBar a11y: `accessibilityRole=search`, label "Search products"
+- [x] T-105 | – | T-103 | ~~Test SearchBar: typing updates rawQuery~~ — MANUAL per v2
+- [x] T-106 | – | T-103 | ~~Test SearchBar: whitespace-only treated as empty~~ — MANUAL per v2
+- [x] T-107 | P0 | T-305,T-304 | Crear `src/features/products/components/ProductGridFooter.tsx` (3 dots Reanimated bouncing + label "Fetching more curated items…")
+- [x] T-108 | – | T-107 | ~~Test ProductGridFooter: spinner shown only when fetching next~~ — MANUAL per v2
+- [x] T-109 | P0 | T-088,T-117 | Reescribir `src/features/products/screens/ProductsScreen.tsx` completo: ScreenHeader absoluto + SearchSubtitle + SearchBar + CategoryChips + grid 2-col + footer
+- [x] T-110 | P0 | T-109 | FlatList `numColumns={2}`, `columnWrapperStyle` gap=`spacing.gutterSm`, `keyExtractor={p => String(p.id)}`
+- [x] T-111 | P0 | T-109 | `onEndReached` → `fetchNextPage`, threshold 0.6
+- [x] T-112 | P0 | T-109 | Skeleton en `isPending` sin layout shift (6 cards)
+- [x] T-113 | P0 | T-109 | EmptyState cuando `items.length === 0 && !isPending`
+- [x] T-114 | P0 | T-109 | ErrorState + RetryButton en error
+- [x] T-115 | P0 | T-109 | `navigation.navigate('ProductDetail', { id })` en card press
+- [x] T-116 | P0 | T-109 | Validar manualmente con Slow 3G para comportamiento de cancelación (EDGE-020)
 
 ## Phase 6 — Detail + Favorites (14h)
 
@@ -184,64 +184,64 @@ Priority: P0 (blocker), P1 (must-have), P2 (should), P3 (bonus).
 > T-128 (refactor) conecta el stub `FavoriteIndicator` de Phase 5 (T-119)
 > con la lógica de `useToggleFavorite` + Reanimated 3.
 
-- [ ] T-120 | P0 | T-001,T-400 | Crear `src/storage/mmkv.ts` con `KeyValueStorage` interface (ya adelantado por T-400; verificar cobertura)
-- [ ] T-121 | P0 | T-120 | Define STORAGE_KEYS = { favoritesV1: 'favorites:v1', settingsV1: 'settings:v1' } en `mmkv.ts`
-- [ ] T-122 | P0 | T-120 | Crear `src/features/favorites/repository/MMKVFavoritesRepository.ts` (implements IFavoritesRepository)
-- [ ] T-123 | – | T-122 | ~~Test MMKVFavoritesRepository: getAll on empty returns []~~ — IMPL only per v2
-- [ ] T-124 | – | T-122 | ~~Test MMKVFavoritesRepository: save + getAll round-trip~~ — IMPL only per v2
-- [ ] T-125 | – | T-122 | ~~Test MMKVFavoritesRepository: remove + getAll~~ — IMPL only per v2
-- [ ] T-126 | – | T-122 | ~~Test MMKVFavoritesRepository: exists boolean~~ — IMPL only per v2
-- [ ] T-127 | – | T-122 | ~~Test MMKVFavoritesRepository: corrupted JSON → [] + warn (EDGE-018)~~ — IMPL only per v2
-- [ ] T-128 | P0 | T-122 | Crear `src/features/favorites/store/favoritesStore.ts` (Zustand)
-- [ ] T-128a | P0 | T-128,T-119 | **Refactor `FavoriteIndicator.tsx` → `FavoriteButton.tsx`** — agregar Reanimated 3 spring (scale 1→1.2→1 en press), integrar con `useIsFavorite` + `useToggleFavorite`. Reemplaza stub de Phase 5.
-- [ ] T-129 | P0 | T-128 | Store includes `hydrate()` method
-- [ ] T-130 | P0 | T-128 | Store keyed by id for O(1) exists
-- [ ] T-131 | P0 | T-128 | Store list() sorted by addedAt desc
-- [ ] T-132 | P0 | T-128 | Crear `src/features/favorites/hooks/useFavorites.ts`
-- [ ] T-133 | – | T-132 | ~~Test useFavorites: returns hydrated list after init~~ — IMPL only per v2
-- [ ] T-134 | – | T-132 | ~~Test useFavorites: add persists (EDGE-019)~~ — IMPL only per v2
-- [ ] T-135 | – | T-132 | ~~Test useFavorites: remove persists~~ — IMPL only per v2
-- [ ] T-136 | – | T-132 | ~~Test useFavorites: toggle alternates~~ — IMPL only per v2
-- [ ] T-137 | – | T-132 | ~~Test useFavorites: exists correctness~~ — IMPL only per v2
-- [ ] T-138 | – | T-132 | ~~Test useFavorites: reactivity (add → list updates) (EDGE-017)~~ — IMPL only per v2
-- [ ] T-139 | P0 | T-132 | Crear `src/features/favorites/hooks/useToggleFavorite.ts`
-- [ ] T-140 | P0 | T-132 | Crear `src/features/favorites/hooks/useIsFavorite.ts`
-- [ ] T-141 | – | T-140 | ~~Test useIsFavorite returns boolean from store~~ — IMPL only per v2
-- [ ] T-142 | – | T-128a | ~~Create `src/features/favorites/components/FavoriteButton.tsx` (Reanimated 3)~~ — Reemplazado por T-128a; verificar cobertura
-- [ ] T-143 | – | T-142 | ~~FavoriteButton uses `useSharedValue`, `useAnimatedStyle`, `withSpring`~~ — Cubierto por T-128a
-- [ ] T-144 | – | T-142 | ~~FavoriteButton a11y: role, label, state~~ — Cubierto por T-128a
-- [ ] T-145 | – | T-142 | ~~FavoriteButton touch target ≥ 44×44~~ — Cubierto por T-128a
-- [ ] T-146 | – | T-142 | ~~Test FavoriteButton: scale starts at 1~~ — MANUAL per v2
-- [ ] T-147 | – | T-142 | ~~Test FavoriteButton: pressIn → scale 1.2 spring (AC-ANIM-001)~~ — MANUAL per v2
-- [ ] T-148 | – | T-142 | ~~Test FavoriteButton: pressOut → scale 1 spring~~ — MANUAL per v2
-- [ ] T-149 | – | T-142 | ~~Test FavoriteButton: double-tap idempotent~~ — MANUAL per v2
-- [ ] T-150 | – | T-142 | ~~Test FavoriteButton: a11y state changes on toggle~~ — MANUAL per v2
-- [ ] T-151 | P0 | T-128a | Lint ban: no `Animated` from `react-native` in `FavoriteButton.tsx`
-- [ ] T-152 | P0 | T-128a | Crear `src/features/favorites/components/FavoriteListItem.tsx`
-- [ ] T-153 | – | T-152 | ~~FavoriteListItem a11y: label, hint~~ — IMPL only per v2
-- [ ] T-154 | P0 | T-027,T-305 | Crear `src/features/products/hooks/useProduct.ts` (single product detail)
-- [ ] T-155 | – | T-154 | ~~Test useProduct: success loads product (AC-DET-001)~~ — IMPL only per v2
-- [ ] T-156 | – | T-154 | ~~Test useProduct: 404 → EmptyState (AC-DET-002)~~ — IMPL only per v2
-- [ ] T-157 | – | T-154 | ~~Test useProduct: error → retry~~ — IMPL only per v2
-- [ ] T-158 | – | T-154 | ~~Test useProduct: favorite toggle updates icon (AC-FAV-001)~~ — IMPL only per v2
-- [ ] T-159 | P0 | T-154 | Crear `src/features/products/screens/ProductDetailScreen.tsx`
-- [ ] T-160 | P0 | T-159 | ProductDetailScreen uses `useProduct` with id from route params
-- [ ] T-161 | P0 | T-159 | ProductDetailScreen has horizontal image carousel (FlatList)
-- [ ] T-162 | P0 | T-159 | ProductDetailScreen renders title, description, prices, rating, tags, category, brand when present (DETAIL-003)
-- [ ] T-163 | P0 | T-159 | ProductDetailScreen renders secondary fields conditionally (DETAIL-004)
-- [ ] T-164 | P0 | T-159 | ProductDetailScreen hides brand when null (EDGE-022)
-- [ ] T-165 | P0 | T-159 | ProductDetailScreen falls back to thumbnail when images empty (EDGE-023)
-- [ ] T-166 | P0 | T-159 | ProductDetailScreen hides tags when empty (EDGE-024)
-- [ ] T-167 | P0 | T-159 | ProductDetailScreen has ProductDetailSkeleton
-- [ ] T-168 | P0 | T-159 | ProductDetailScreen integrates FavoriteButton
-- [ ] T-169 | P0 | T-128 | Hydrate favoritesStore in AppProviders before render of tabs
-- [ ] T-170 | P0 | T-169 | Add splash guard while `!isHydrated`
-- [ ] T-171 | P0 | T-128 | Crear `src/features/favorites/screens/FavoritesScreen.tsx`
-- [ ] T-172 | P0 | T-171 | FavoritesScreen reads from store, NOT from API (FAV-002)
-- [ ] T-173 | P0 | T-171 | FavoritesScreen renders EmptyState when list empty
-- [ ] T-174 | P0 | T-171 | FavoritesScreen items tappable to navigate to detail
-- [ ] T-175 | P0 | T-171 | FavoritesScreen FavoriteButton toggle removes from list (AC-FAV-002)
-- [ ] T-176 | – | T-171 | ~~Test FavoritesScreen does NOT call productRepository (FAV-002)~~ — IMPL only per v2
+- [x] T-120 | P0 | T-001,T-400 | Crear `src/storage/mmkv.ts` con `KeyValueStorage` interface (ya adelantado por T-400; verificar cobertura)
+- [x] T-121 | P0 | T-120 | Define STORAGE_KEYS = { favoritesV1: 'favorites:v1', settingsV1: 'settings:v1' } en `mmkv.ts`
+- [x] T-122 | P0 | T-120 | Crear `src/features/favorites/repository/MMKVFavoritesRepository.ts` (implements IFavoritesRepository)
+- [x] T-123 | – | T-122 | ~~Test MMKVFavoritesRepository: getAll on empty returns []~~ — IMPL only per v2
+- [x] T-124 | – | T-122 | ~~Test MMKVFavoritesRepository: save + getAll round-trip~~ — IMPL only per v2
+- [x] T-125 | – | T-122 | ~~Test MMKVFavoritesRepository: remove + getAll~~ — IMPL only per v2
+- [x] T-126 | – | T-122 | ~~Test MMKVFavoritesRepository: exists boolean~~ — IMPL only per v2
+- [x] T-127 | – | T-122 | ~~Test MMKVFavoritesRepository: corrupted JSON → [] + warn (EDGE-018)~~ — IMPL only per v2
+- [x] T-128 | P0 | T-122 | Crear `src/features/favorites/store/favoritesStore.ts` (Zustand)
+- [x] T-128a | P0 | T-128,T-119 | **Refactor `FavoriteIndicator.tsx` → `FavoriteButton.tsx`** — agregar Reanimated 3 spring (scale 1→1.2→1 en press), integrar con `useIsFavorite` + `useToggleFavorite`. Reemplaza stub de Phase 5.
+- [x] T-129 | P0 | T-128 | Store includes `hydrate()` method
+- [x] T-130 | P0 | T-128 | Store keyed by id for O(1) exists
+- [x] T-131 | P0 | T-128 | Store list() sorted by addedAt desc
+- [x] T-132 | P0 | T-128 | Crear `src/features/favorites/hooks/useFavorites.ts`
+- [x] T-133 | – | T-132 | ~~Test useFavorites: returns hydrated list after init~~ — IMPL only per v2
+- [x] T-134 | – | T-132 | ~~Test useFavorites: add persists (EDGE-019)~~ — IMPL only per v2
+- [x] T-135 | – | T-132 | ~~Test useFavorites: remove persists~~ — IMPL only per v2
+- [x] T-136 | – | T-132 | ~~Test useFavorites: toggle alternates~~ — IMPL only per v2
+- [x] T-137 | – | T-132 | ~~Test useFavorites: exists correctness~~ — IMPL only per v2
+- [x] T-138 | – | T-132 | ~~Test useFavorites: reactivity (add → list updates) (EDGE-017)~~ — IMPL only per v2
+- [x] T-139 | P0 | T-132 | Crear `src/features/favorites/hooks/useToggleFavorite.ts`
+- [x] T-140 | P0 | T-132 | Crear `src/features/favorites/hooks/useIsFavorite.ts`
+- [x] T-141 | – | T-140 | ~~Test useIsFavorite returns boolean from store~~ — IMPL only per v2
+- [x] T-142 | – | T-128a | ~~Create `src/features/favorites/components/FavoriteButton.tsx` (Reanimated 3)~~ — Reemplazado por T-128a; verificar cobertura
+- [x] T-143 | – | T-142 | ~~FavoriteButton uses `useSharedValue`, `useAnimatedStyle`, `withSpring`~~ — Cubierto por T-128a
+- [x] T-144 | – | T-142 | ~~FavoriteButton a11y: role, label, state~~ — Cubierto por T-128a
+- [x] T-145 | – | T-142 | ~~FavoriteButton touch target ≥ 44×44~~ — Cubierto por T-128a
+- [x] T-146 | – | T-142 | ~~Test FavoriteButton: scale starts at 1~~ — MANUAL per v2
+- [x] T-147 | – | T-142 | ~~Test FavoriteButton: pressIn → scale 1.2 spring (AC-ANIM-001)~~ — MANUAL per v2
+- [x] T-148 | – | T-142 | ~~Test FavoriteButton: pressOut → scale 1 spring~~ — MANUAL per v2
+- [x] T-149 | – | T-142 | ~~Test FavoriteButton: double-tap idempotent~~ — MANUAL per v2
+- [x] T-150 | – | T-142 | ~~Test FavoriteButton: a11y state changes on toggle~~ — MANUAL per v2
+- [x] T-151 | P0 | T-128a | Lint ban: no `Animated` from `react-native` in `FavoriteButton.tsx`
+- [x] T-152 | P0 | T-128a | Crear `src/features/favorites/components/FavoriteListItem.tsx`
+- [x] T-153 | – | T-152 | ~~FavoriteListItem a11y: label, hint~~ — IMPL only per v2
+- [x] T-154 | P0 | T-027,T-305 | Crear `src/features/products/hooks/useProduct.ts` (single product detail)
+- [x] T-155 | – | T-154 | ~~Test useProduct: success loads product (AC-DET-001)~~ — IMPL only per v2
+- [x] T-156 | – | T-154 | ~~Test useProduct: 404 → EmptyState (AC-DET-002)~~ — IMPL only per v2
+- [x] T-157 | – | T-154 | ~~Test useProduct: error → retry~~ — IMPL only per v2
+- [x] T-158 | – | T-154 | ~~Test useProduct: favorite toggle updates icon (AC-FAV-001)~~ — IMPL only per v2
+- [x] T-159 | P0 | T-154 | Crear `src/features/products/screens/ProductDetailScreen.tsx`
+- [x] T-160 | P0 | T-159 | ProductDetailScreen uses `useProduct` with id from route params
+- [x] T-161 | P0 | T-159 | ProductDetailScreen has horizontal image carousel (FlatList)
+- [x] T-162 | P0 | T-159 | ProductDetailScreen renders title, description, prices, rating, tags, category, brand when present (DETAIL-003)
+- [x] T-163 | P0 | T-159 | ProductDetailScreen renders secondary fields conditionally (DETAIL-004)
+- [x] T-164 | P0 | T-159 | ProductDetailScreen hides brand when null (EDGE-022)
+- [x] T-165 | P0 | T-159 | ProductDetailScreen falls back to thumbnail when images empty (EDGE-023)
+- [x] T-166 | P0 | T-159 | ProductDetailScreen hides tags when empty (EDGE-024)
+- [x] T-167 | P0 | T-159 | ProductDetailScreen has ProductDetailSkeleton
+- [x] T-168 | P0 | T-159 | ProductDetailScreen integrates FavoriteButton
+- [x] T-169 | P0 | T-128 | Hydrate favoritesStore in AppProviders before render of tabs
+- [x] T-170 | P0 | T-169 | Add splash guard while `!isHydrated`
+- [x] T-171 | P0 | T-128 | Crear `src/features/favorites/screens/FavoritesScreen.tsx`
+- [x] T-172 | P0 | T-171 | FavoritesScreen reads from store, NOT from API (FAV-002)
+- [x] T-173 | P0 | T-171 | FavoritesScreen renders EmptyState when list empty
+- [x] T-174 | P0 | T-171 | FavoritesScreen items tappable to navigate to detail
+- [x] T-175 | P0 | T-171 | FavoritesScreen FavoriteButton toggle removes from list (AC-FAV-002)
+- [x] T-176 | – | T-171 | ~~Test FavoritesScreen does NOT call productRepository (FAV-002)~~ — IMPL only per v2
 
 ## Phase 7 — Quality (4h)
 

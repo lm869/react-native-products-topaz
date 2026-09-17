@@ -1,24 +1,56 @@
 import React, { useMemo } from 'react';
-import { Text } from 'react-native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { StyleSheet, Text, View } from 'react-native';
+import {
+  createBottomTabNavigator,
+  type BottomTabNavigationOptions,
+} from '@react-navigation/bottom-tabs';
 import { ProductsStack } from './ProductsStack';
 import { FavoritesScreen } from '@/features/favorites/screens/FavoritesScreen';
 import { useAppTheme } from '@/theme/ThemeContext';
+import { useFavoritesStore } from '@/features/favorites/store/favoritesStore';
 import type { RootTabParamList } from './types';
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
 
-function ProductsTabIcon({ color }: { color: string }): React.JSX.Element {
-  return <Text style={{ color }}>▤</Text>;
+function useFavoritesCount(): number {
+  return useFavoritesStore(state => Object.keys(state.byId).length);
 }
 
-function FavoritesTabIcon({ color }: { color: string }): React.JSX.Element {
-  return <Text style={{ color }}>♥</Text>;
+type IconProps = { color: string; focused: boolean };
+
+function ProductsTabIcon({ color, focused }: IconProps): React.JSX.Element {
+  const theme = useAppTheme();
+  return (
+    <View style={styles.iconWrap}>
+      <Text style={[styles.iconText, { color }]}>▤</Text>
+      {focused ? (
+        <View
+          style={[styles.indicator, { backgroundColor: theme.colors.primary }]}
+        />
+      ) : null}
+    </View>
+  );
+}
+
+function FavoritesTabIcon({ color, focused }: IconProps): React.JSX.Element {
+  const theme = useAppTheme();
+  return (
+    <View style={styles.iconWrap}>
+      <Text style={[styles.iconText, { color }]}>♥</Text>
+      {focused ? (
+        <View
+          style={[styles.indicator, { backgroundColor: theme.colors.primary }]}
+        />
+      ) : null}
+    </View>
+  );
 }
 
 export function RootTabs(): React.JSX.Element {
   const theme = useAppTheme();
-  const screenOptions = useMemo(
+  const favoritesCount = useFavoritesCount();
+
+  const screenOptions = useMemo<BottomTabNavigationOptions>(
     () => ({
       headerShown: false,
       tabBarStyle: {
@@ -30,6 +62,7 @@ export function RootTabs(): React.JSX.Element {
     }),
     [theme],
   );
+
   return (
     <Tab.Navigator screenOptions={screenOptions}>
       <Tab.Screen
@@ -40,8 +73,34 @@ export function RootTabs(): React.JSX.Element {
       <Tab.Screen
         name="FavoritesTab"
         component={FavoritesScreen}
-        options={{ tabBarIcon: FavoritesTabIcon }}
+        options={{
+          tabBarIcon: FavoritesTabIcon,
+          tabBarBadge: favoritesCount > 0 ? favoritesCount : undefined,
+          tabBarBadgeStyle: {
+            backgroundColor: theme.colors.accent,
+            color: theme.colors.card,
+            fontSize: 10,
+            fontWeight: '700',
+          },
+        }}
       />
     </Tab.Navigator>
   );
 }
+
+const styles = StyleSheet.create({
+  iconWrap: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconText: {
+    fontSize: 22,
+    lineHeight: 24,
+  },
+  indicator: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    marginTop: 2,
+  },
+});

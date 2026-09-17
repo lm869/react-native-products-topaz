@@ -10,44 +10,27 @@ import FastImage from '@d11/react-native-fast-image';
 import type { Product } from '@/domain/product/Product';
 import { useAppTheme } from '@/theme/ThemeContext';
 import { DiscountPill } from './DiscountPill';
-import { FavoriteIndicator } from './FavoriteIndicator';
+import { FavoriteButton } from '@/features/favorites/components/FavoriteButton';
 import { computeDiscountedPrice, isOnSale } from '@/utils/discount';
 import { formatCurrency } from '@/utils/currency';
 import { truncate } from '@/utils/truncate';
 
 type Props = {
   product: Product;
-  isFavorite: boolean;
   onPress: (id: number) => void;
-  onFavoritePress?: (id: number) => void;
 };
 
-function ratingLabel(rating: number): string {
-  if (!Number.isFinite(rating) || rating <= 0) return '';
-  return rating.toFixed(1);
-}
-
-function ProductCardImpl({
-  product,
-  isFavorite,
-  onPress,
-  onFavoritePress,
-}: Props): React.JSX.Element {
+function ProductCardImpl({ product, onPress }: Props): React.JSX.Element {
   const theme = useAppTheme();
 
   const handlePress = useCallback(() => {
     onPress(product.id);
   }, [onPress, product.id]);
 
-  const handleFav = useCallback(() => {
-    onFavoritePress?.(product.id);
-  }, [onFavoritePress, product.id]);
-
   const onSaleFlag = isOnSale(product.discountPercentage);
   const finalPrice = onSaleFlag
     ? computeDiscountedPrice(product.price, product.discountPercentage)
     : product.price;
-  const rating = ratingLabel(product.rating);
 
   const a11yRole: AccessibilityRole = 'button';
   const a11yLabel = `${product.title}, ${formatCurrency(finalPrice)}${
@@ -84,10 +67,7 @@ function ProductCardImpl({
           resizeMode={FastImage.resizeMode.cover}
         />
         <DiscountPill discountPercentage={product.discountPercentage} />
-        <FavoriteIndicator
-          isFavorite={isFavorite}
-          onPress={onFavoritePress ? handleFav : undefined}
-        />
+        <FavoriteButton product={product} />
       </View>
       <View style={styles.body}>
         <Text
@@ -99,7 +79,6 @@ function ProductCardImpl({
           numberOfLines={1}
         >
           {product.category}
-          {rating ? ` · ★ ${rating}` : ''}
         </Text>
         <Text
           style={[
@@ -138,10 +117,11 @@ export const ProductCard = memo(
   ProductCardImpl,
   (prev, next) =>
     prev.product.id === next.product.id &&
-    prev.isFavorite === next.isFavorite &&
     prev.product.price === next.product.price &&
     prev.product.title === next.product.title &&
-    prev.product.thumbnail === next.product.thumbnail,
+    prev.product.thumbnail === next.product.thumbnail &&
+    prev.product.discountPercentage === next.product.discountPercentage &&
+    prev.product.category === next.product.category,
 );
 
 const styles = StyleSheet.create({
@@ -150,6 +130,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 18,
     overflow: 'hidden',
+    shadowColor: '#2B2D42',
+    shadowOpacity: 0.05,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 16,
+    elevation: 2,
   },
   imageWrap: {
     width: '100%',

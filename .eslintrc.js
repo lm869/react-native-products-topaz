@@ -25,5 +25,23 @@ module.exports = {
         'no-restricted-imports': 'off',
       },
     },
+    {
+      files: ['src/features/favorites/components/FavoriteButton.tsx'],
+      rules: {
+        'no-restricted-imports': [
+          'error',
+          {
+            paths: [
+              {
+                name: 'react-native',
+                importNames: ['Animated'],
+                message:
+                  'Use react-native-reanimated for animations in FavoriteButton (Constitution Art. VIII §3).',
+              },
+            ],
+          },
+        ],
+      },
+    },
   ],
 };
