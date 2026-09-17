@@ -27,6 +27,13 @@ function parseStored(raw: string): StoredShape {
   }
 }
 
+/**
+ * Phase 10 policy: schema is additive. Required fields are validated;
+ * extra fields (`rating`, `discountPercentage`, `originalPrice`) are
+ * accepted silently — backwards-compat with v1 payloads that lack them.
+ * Entries missing extras render "leve" (no discount badge, no rating star)
+ * until next toggle enriches the shape.
+ */
 function isFavoriteShape(value: unknown): value is FavoriteProduct {
   if (typeof value !== 'object' || value === null) return false;
   const v = value as Record<string, unknown>;

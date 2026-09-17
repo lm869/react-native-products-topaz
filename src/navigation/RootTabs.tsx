@@ -8,6 +8,7 @@ import { ProductsStack } from './ProductsStack';
 import { FavoritesScreen } from '@/features/favorites/screens/FavoritesScreen';
 import { useAppTheme } from '@/theme/ThemeContext';
 import { useFavoritesStore } from '@/features/favorites/store/favoritesStore';
+import { Icon } from '@/components/Icon';
 import type { RootTabParamList } from './types';
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
@@ -34,9 +35,24 @@ function ProductsTabIcon({ color, focused }: IconProps): React.JSX.Element {
 
 function FavoritesTabIcon({ color, focused }: IconProps): React.JSX.Element {
   const theme = useAppTheme();
+  const favoritesCount = useFavoritesCount();
+  const isFilled = favoritesCount > 0;
   return (
-    <View style={styles.iconWrap}>
-      <Text style={[styles.iconText, { color }]}>♥</Text>
+    <View
+      accessibilityLabel={
+        favoritesCount > 0
+          ? `Favorites, ${favoritesCount} ${
+              favoritesCount === 1 ? 'item' : 'items'
+            }`
+          : 'Favorites, empty'
+      }
+      style={styles.iconWrap}
+    >
+      <Icon
+        name={isFilled ? 'heart' : 'heart-outline'}
+        size={22}
+        color={color}
+      />
       {focused ? (
         <View
           style={[styles.indicator, { backgroundColor: theme.colors.primary }]}

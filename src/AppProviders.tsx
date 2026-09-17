@@ -5,6 +5,8 @@ import { ThemeProvider } from '@/theme/ThemeProvider';
 import { ThemeOverrideProvider } from '@/theme/ThemeOverrideProvider';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { HydrationGate } from '@/components/HydrationGate';
+import { SnackbarProvider } from '@/components/SnackbarProvider';
+import { ConfirmProvider } from '@/components/ConfirmProvider';
 import { queryClient } from '@/store/queryClient';
 
 type Props = { children: React.ReactNode };
@@ -16,7 +18,11 @@ export function AppProviders({ children }: Props): React.JSX.Element {
         <QueryClientProvider client={queryClient}>
           <ThemeProvider>
             <ThemeOverrideProvider>
-              <HydrationGate>{children}</HydrationGate>
+              <SnackbarProvider>
+                <ConfirmProvider>
+                  <HydrationGate>{children}</HydrationGate>
+                </ConfirmProvider>
+              </SnackbarProvider>
             </ThemeOverrideProvider>
           </ThemeProvider>
         </QueryClientProvider>

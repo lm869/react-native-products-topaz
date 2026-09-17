@@ -101,6 +101,7 @@ topazProducts/
 |                 | `prettier`                                          | `2.8.8`         | format check |
 | Build           | `@react-native-community/cli`                       | `20.0.0`        | scaffold |
 |                 | `babel-plugin-module-resolver`                      | `^5.0.3`        | requerido para alias `@/*` en Metro |
+| Native module   | Kotlin (`2.x`)                                      | `java.text.NumberFormat` (Android ICU) | bonus Phase 9 — Kotlin only, fallback a `Intl` en iOS |
 
 Engines: `node >= 22.11.0` (forzado por `package.json`).
 
@@ -208,6 +209,15 @@ Full reload en device:
   de codegen en RN 0.81. No bumpear sin verificar codegen contra
   `@react-native/codegen` de esta versión de RN.
 
+- **Native module (Phase 9 bonus)**: módulo Kotlin `com.topazproducts.nativecurrency`
+  expone `format(amount, currencyCode, locale)` vía `@ReactMethod` + `Promise`.
+  Usa `java.text.NumberFormat` (API nativa Android, ICU del sistema).
+  Wrapper JS detecta `Platform.OS === 'android'` + módulo registrado → llama
+  nativo; cualquier otra condición (iOS, ausencia, error) cae a `Intl.NumberFormat`.
+  iOS sin Swift module — `formatCurrency()` sync sigue siendo el path default.
+  Demo de uso en `ProductDetailScreen` con selector currency + rates ficticios
+  (ver sección *Bonus Features*).
+
 - **Manejo de errores**: taxonomía `AppError` en `src/api/errors.ts` cubre `network` /
   `timeout` / `abort` / `http` / `parse` / `unknown`. `httpClient` mapea fallos de fetch
   a errores tipados; los repositorios propagan; los hooks exponen en el campo `error`;
@@ -270,8 +280,9 @@ cd ios && xcodebuild \
 - **Sin tests E2E**: solo unit/integration MUST-level (4 archivos según
   `plan.md § Testing Strategy v2` + añadidos Phase 7 v2). Sin Detox/Maestro.
 
-- **Sin screenshots en repo**: `docs/screenshots/` queda vacío en Phase 8; Phase 10 lo
-  poblará tras el pase de polish.
+- **Sin screenshots en repo**: `docs/screenshots/` queda creado (con README) en
+  Phase 10; los PNG (T-1045..T-1047) requieren emulador y quedan como tarea
+  diferida explícita en `tasks.md`.
 
 - **Verificación manual de dark-mode**: T-203 (Phase 8) se verifica solo por code review —
   sin corrida en emulador logueada. El toggle está cableado vía `useThemeOverride` y
@@ -364,6 +375,39 @@ lo que duplicaría renders y complicaría la lógica de accesibilidad. `Intl`
 en JS ya es rápido para el dataset del catálogo (~30 productos visibles a la
 vez). El wrapper async se reserva para futuros casos donde el formato nativo
 aporte valor medible (listas muy largas, animaciones, etc.).
+
+#### Output examples (conversión ficticia, `product.price = 8.94` USD)
+
+| Currency | Locale | Native (Kotlin `NumberFormat`) | Fallback (Intl) |
+|----------|--------|-------------------------------|-----------------|
+| USD      | en-US  | `$8.94`                       | `$8.94`         |
+| EUR      | en-US  | `€8.31`                       | `€8.31`         |
+| ARS      | es-AR  | `AR$ 8.940,00`                | `AR$ 8.940,00`  |
+| JPY      | ja-JP  | `¥1,341`                      | `¥1,341`        |
+
+En este demo ambos paths producen **output idéntico** (mismo ICU backend). El
+native module tiene valor demostrativo: prueba que el bridge JS↔Kotlin funciona
+end-to-end y la integración con `MainApplication.kt` está bien registrada.
+
+#### Cómo extender el módulo
+
+**Agregar nueva currency** (ej: BRL, MXN):
+1. `src/utils/currencyConversion.ts` → agregar entry en `DEMO_RATES_FROM_USD`.
+2. `ProductDetailScreen.tsx` `CURRENCY_OPTIONS` → agregar el code al array.
+3. Si locale custom → `getCurrencyLocale()` agregar case correspondiente.
+4. (Opcional) Actualizar la tabla de outputs arriba.
+
+**Agregar nuevo método nativo** (ej: `parseCurrency(string) → Promise<number>`):
+1. Agregar `@ReactMethod` en `NativeCurrencyFormatterModule.kt` con su `Promise`.
+2. Rebuild APK (`./gradlew assembleDebug`).
+3. Tipar el método en `src/utils/nativeCurrencyFormatter.ts` (interface `NativeCurrencyFormatter`).
+4. Exportar wrapper function con fallback correspondiente (mismo patrón que `formatCurrencyNative`).
+
+**Migrar a TurboModule** (RN new arch — out of scope Phase 9):
+- `codegenConfig` en `package.json` + `@react-native/codegen`.
+- Spec TS en `src/specs/NativeCurrencyFormatter.ts` (interface tipada para codegen).
+- Bridge pasa de JSON serializer a JSI — llamadas **síncronas** posibles, 10-100x más rápidas.
+- Trade-off: requiere `newArchEnabled=true`, más boilerplate, debugging más complejo.
 
 #### API del módulo nativo
 

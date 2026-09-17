@@ -12,7 +12,7 @@ import { useCategories } from '@/features/products/hooks/useCategories';
 import { SearchBar } from '@/features/products/components/SearchBar';
 import { CategoryChips } from '@/features/products/components/CategoryChips';
 import { ProductCard } from '@/features/products/components/ProductCard';
-import { ProductSkeleton } from '@/features/products/components/ProductSkeleton';
+import { SkeletonCard } from '@/features/products/components/ProductSkeleton';
 import { ProductGridFooter } from '@/features/products/components/ProductGridFooter';
 import type { Product } from '@/domain/product/Product';
 import type { ProductsStackScreenProps } from '@/navigation/types';
@@ -40,6 +40,7 @@ export function ProductsScreen({ navigation }: Props): React.JSX.Element {
   });
 
   const categories = useCategories();
+  const refetchCategories = categories.refetch;
 
   const handleCardPress = useCallback(
     (id: number) => {
@@ -65,7 +66,8 @@ export function ProductsScreen({ navigation }: Props): React.JSX.Element {
 
   const handleRetry = useCallback(() => {
     refetch();
-  }, [refetch]);
+    refetchCategories();
+  }, [refetch, refetchCategories]);
 
   const handleEndReached = useCallback(() => {
     fetchNextPage();
@@ -84,12 +86,28 @@ export function ProductsScreen({ navigation }: Props): React.JSX.Element {
   const showInlineError = isError && items.length === 0;
   const showEmpty = !isPending && !isError && items.length === 0;
 
+  const renderSkeletonItem = useCallback(
+    () => <SkeletonCard />,
+    [],
+  );
+
+  const skeletonKeyExtractor = useCallback(
+    (_: unknown, i: number) => `sk-${i}`,
+    [],
+  );
+
   let content: React.ReactNode = null;
   if (showInitialSkeleton) {
     content = (
-      <View style={styles.skeletonWrap}>
-        <ProductSkeleton count={6} />
-      </View>
+      <FlatList
+        data={Array.from({ length: 6 })}
+        keyExtractor={skeletonKeyExtractor}
+        numColumns={2}
+        columnWrapperStyle={styles.row}
+        renderItem={renderSkeletonItem}
+        contentContainerStyle={styles.listContent}
+        scrollEnabled={false}
+      />
     );
   } else if (showInlineError && error) {
     content = <ErrorState error={error} onRetry={handleRetry} />;
@@ -150,14 +168,18 @@ export function ProductsScreen({ navigation }: Props): React.JSX.Element {
           Discover curated items from independent makers.
         </Text>
       </View>
-      <SearchBar value={rawQuery} onChangeText={handleQueryChange} />
-      <View style={styles.searchChipsWrap}>
-        <CategoryChips
-          categories={categories.items}
-          selected={category}
-          onSelect={handleCategorySelect}
-        />
-      </View>
+      {!showInlineError && (
+        <>
+          <SearchBar value={rawQuery} onChangeText={handleQueryChange} />
+          <View style={styles.searchChipsWrap}>
+            <CategoryChips
+              categories={categories.items}
+              selected={category}
+              onSelect={handleCategorySelect}
+            />
+          </View>
+        </>
+      )}
       <View style={styles.body}>{content}</View>
     </Screen>
   );
@@ -184,8 +206,5 @@ const styles = StyleSheet.create({
   row: {
     gap: 14,
     marginBottom: 14,
-  },
-  skeletonWrap: {
-    paddingHorizontal: 13,
   },
 });

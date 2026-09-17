@@ -6,6 +6,7 @@ import { favoritesRepository } from '../repository/MMKVFavoritesRepository';
 type FavoriteEntry = FavoriteProduct;
 
 function fromProduct(product: Product): FavoriteEntry {
+  const discount = product.discountPercentage;
   const entry: FavoriteEntry = {
     id: product.id,
     title: product.title,
@@ -13,6 +14,10 @@ function fromProduct(product: Product): FavoriteEntry {
     thumbnail: product.thumbnail,
     category: product.category,
     addedAt: Date.now(),
+    rating: product.rating,
+    discountPercentage: discount,
+    originalPrice:
+      discount > 0 ? product.price / (1 - discount / 100) : undefined,
   };
   if (product.brand !== undefined) entry.brand = product.brand;
   return entry;
@@ -21,10 +26,14 @@ function fromProduct(product: Product): FavoriteEntry {
 interface FavoritesState {
   byId: Record<number, FavoriteEntry>;
   isHydrated: boolean;
+  lastClearedSnapshot: FavoriteEntry[];
   hydrate: () => void;
   add: (product: Product) => void;
   remove: (id: number) => void;
   toggle: (product: Product) => void;
+  clearAll: () => FavoriteEntry[];
+  restore: (entry: FavoriteEntry) => void;
+  restoreAll: (entries: FavoriteEntry[]) => void;
 }
 
 function sortByAddedDesc(entries: FavoriteEntry[]): FavoriteEntry[] {
@@ -34,6 +43,7 @@ function sortByAddedDesc(entries: FavoriteEntry[]): FavoriteEntry[] {
 export const useFavoritesStore = create<FavoritesState>((set, get) => ({
   byId: {},
   isHydrated: false,
+  lastClearedSnapshot: [],
   hydrate: () => {
     if (get().isHydrated) return;
     const all = favoritesRepository.getAll();
@@ -71,6 +81,32 @@ export const useFavoritesStore = create<FavoritesState>((set, get) => ({
       get().add(product);
     }
   },
+  clearAll: () => {
+    const snapshot = sortByAddedDesc(Object.values(get().byId));
+    const ids = Object.keys(get().byId).map(Number);
+    for (const id of ids) {
+      favoritesRepository.remove(id);
+    }
+    set({ byId: {}, lastClearedSnapshot: snapshot });
+    return snapshot;
+  },
+  restore: entry => {
+    const prev = get().byId;
+    if (prev[entry.id] !== undefined) return;
+    const byId = { ...prev, [entry.id]: entry };
+    favoritesRepository.save(entry);
+    set({ byId });
+  },
+  restoreAll: entries => {
+    const prev = get().byId;
+    const byId = { ...prev };
+    for (const entry of entries) {
+      if (byId[entry.id] !== undefined) continue;
+      byId[entry.id] = entry;
+      favoritesRepository.save(entry);
+    }
+    set({ byId, lastClearedSnapshot: [] });
+  },
 }));
 
 export function selectIsFavorite(id: number) {
@@ -87,4 +123,8 @@ export function selectFavoriteIds(state: FavoritesState): number[] {
 
 export function selectIsHydrated(state: FavoritesState): boolean {
   return state.isHydrated;
+}
+
+export function selectFavoritesCount(state: FavoritesState): number {
+  return Object.keys(state.byId).length;
 }
