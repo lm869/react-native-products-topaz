@@ -44,8 +44,16 @@ export const useFavoritesStore = create<FavoritesState>((set, get) => ({
     set({ byId, isHydrated: true });
   },
   add: product => {
-    const entry = fromProduct(product);
-    const byId = { ...get().byId, [entry.id]: entry };
+    const prev = get().byId;
+    const maxAddedAt = Object.values(prev).reduce(
+      (m, e) => Math.max(m, e.addedAt),
+      0,
+    );
+    const entry: FavoriteEntry = {
+      ...fromProduct(product),
+      addedAt: Math.max(Date.now(), maxAddedAt + 1),
+    };
+    const byId = { ...prev, [entry.id]: entry };
     favoritesRepository.save(entry);
     set({ byId });
   },
