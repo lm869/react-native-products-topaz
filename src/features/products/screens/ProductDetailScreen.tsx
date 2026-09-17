@@ -22,8 +22,18 @@ import { FavoriteButton } from '@/features/favorites/components/FavoriteButton';
 import { useAppTheme } from '@/theme/ThemeContext';
 import { useProduct } from '@/features/products/hooks/useProduct';
 import { computeDiscountedPrice, isOnSale } from '@/utils/discount';
-import { formatCurrency } from '@/utils/currency';
+import { useFormattedPrice } from '@/utils/useFormattedPrice';
+import {
+  convertFromUSD,
+  DEMO_DISCLAIMER,
+  getCurrencyLocale,
+  getDemoRate,
+  type DemoCurrency,
+} from '@/utils/currencyConversion';
 import type { ProductsStackScreenProps } from '@/navigation/types';
+
+const CURRENCY_OPTIONS = ['USD', 'EUR', 'ARS', 'JPY'] as const;
+type CurrencyCode = DemoCurrency;
 
 type Props = ProductsStackScreenProps<'ProductDetail'>;
 
@@ -48,6 +58,23 @@ export function ProductDetailScreen({
   }, [product]);
 
   const [activeIndex, setActiveIndex] = useState(0);
+  const [currency, setCurrency] = useState<CurrencyCode>('USD');
+  const locale = getCurrencyLocale(currency);
+
+  const safePrice = product?.price ?? 0;
+  const safeDiscount = product?.discountPercentage ?? 0;
+  const safeOnSale = isOnSale(safeDiscount);
+  const safeFinalPrice = safeOnSale
+    ? computeDiscountedPrice(safePrice, safeDiscount)
+    : safePrice;
+  const convertedFinalPrice = convertFromUSD(safeFinalPrice, currency);
+  const convertedOriginalPrice = convertFromUSD(safePrice, currency);
+  const mainPriceFmt = useFormattedPrice(convertedFinalPrice, currency, locale);
+  const originalPriceFmt = useFormattedPrice(
+    convertedOriginalPrice,
+    currency,
+    locale,
+  );
 
   const onScroll = useCallback((e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const idx = Math.round(e.nativeEvent.contentOffset.x / ITEM_WIDTH);
@@ -126,9 +153,6 @@ export function ProductDetailScreen({
   }
 
   const onSaleFlag = isOnSale(product.discountPercentage);
-  const finalPrice = onSaleFlag
-    ? computeDiscountedPrice(product.price, product.discountPercentage)
-    : product.price;
   const ratingValue = product.rating;
   const tags = product.tags ?? [];
   const showBrand = product.brand !== undefined && product.brand.length > 0;
@@ -247,6 +271,44 @@ export function ProductDetailScreen({
             ) : null}
           </View>
 
+          <View style={styles.currencyRow}>
+            {CURRENCY_OPTIONS.map(code => {
+              const isActive = code === currency;
+              return (
+                <View
+                  key={code}
+                  style={[
+                    styles.currencyPill,
+                    {
+                      backgroundColor: isActive
+                        ? theme.colors.accent
+                        : theme.colors.themeToggleBg,
+                      borderColor: theme.colors.cardBorder,
+                    },
+                  ]}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Show price in ${code}`}
+                  accessibilityState={{ selected: isActive }}
+                  onTouchEnd={() => setCurrency(code)}
+                >
+                  <Text
+                    style={[
+                      theme.typography.eyebrowSm,
+                      styles.currencyLabel,
+                      {
+                        color: isActive
+                          ? theme.colors.canvas
+                          : theme.colors.text,
+                      },
+                    ]}
+                  >
+                    {code}
+                  </Text>
+                </View>
+              );
+            })}
+          </View>
+
           <Text
             style={[
               theme.typography.screenTitle,
@@ -318,7 +380,7 @@ export function ProductDetailScreen({
             ]}
           >
             <Text style={[styles.priceHuge, { color: theme.colors.accent }]}>
-              {formatCurrency(finalPrice)}
+              {mainPriceFmt.value}
             </Text>
             {onSaleFlag ? (
               <Text
@@ -328,7 +390,7 @@ export function ProductDetailScreen({
                   { color: theme.colors.priceStrike },
                 ]}
               >
-                {formatCurrency(product.price)}
+                {originalPriceFmt.value}
               </Text>
             ) : null}
             {onSaleFlag ? (
@@ -353,6 +415,32 @@ export function ProductDetailScreen({
               </View>
             ) : null}
           </View>
+
+          <Text
+            style={[
+              theme.typography.footerLabel,
+              styles.pathBadge,
+              {
+                color:
+                  mainPriceFmt.path === 'native'
+                    ? theme.colors.accent
+                    : theme.colors.textMuted,
+              },
+            ]}
+            accessibilityLabel={
+              mainPriceFmt.path === 'native'
+                ? `Price formatted by native Android NumberFormat. 1 USD equals ${getDemoRate(
+                    currency,
+                  )} ${currency}. Demo rates, not real-time.`
+                : `Price formatted by Intl fallback. 1 USD equals ${getDemoRate(
+                    currency,
+                  )} ${currency}. Demo rates, not real-time.`
+            }
+          >
+            {`1 USD = ${getDemoRate(currency)} ${currency} · ${
+              mainPriceFmt.path === 'native' ? 'via native' : 'via Intl'
+            } · ${DEMO_DISCLAIMER}`}
+          </Text>
 
           {showTags ? (
             <ScrollView
@@ -597,6 +685,25 @@ const styles = StyleSheet.create({
   },
   verifiedLabel: {
     marginLeft: 4,
+  },
+  currencyRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 12,
+  },
+  currencyPill: {
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 999,
+    borderWidth: 1,
+  },
+  currencyLabel: {
+    fontFamily: 'Manrope-Bold',
+  },
+  pathBadge: {
+    marginTop: -12,
+    marginBottom: 20,
+    letterSpacing: 0.4,
   },
   title: {
     marginBottom: 12,
