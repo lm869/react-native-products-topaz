@@ -108,17 +108,32 @@ export interface PaginatedProducts {
 ## Layer 3 — Persisted Model (MMKV)
 
 ```ts
-// src/domain/favorites/FavoriteProduct.ts
+// src/domain/favorites/FavoriteProduct.ts — v2 (Phase 10)
 export interface FavoriteProduct {
   id: number;
   title: string;
+  price: number;
   thumbnail: string;
-  price: Money;
-  discountPercentage: number;
-  rating: number;
+  category: string;
+  brand?: string;
   addedAt: number; // epoch ms
+  rating?: number;
+  discountPercentage?: number;
+  originalPrice?: number;
 }
 ```
+
+**Phase 10 schema change:** `rating`, `discountPercentage`, `originalPrice`
+were added as **optional** fields. `originalPrice` is computed at save time
+when `discountPercentage > 0` via `price / (1 - discount/100)`, so the
+`FavoritesScreen` can render the strikethrough price without an API call.
+The persisted model is the **authoritative snapshot** for the favorites
+list — `FavoritesScreen` never re-fetches from the catalog (FAV-002).
+
+**Backwards-compat with v1 payloads:** required fields are validated; extra
+fields are accepted silently. Entries lacking the new optional fields render
+"leve" (no discount badge, no rating star) until the next toggle enriches
+the shape. No migration key bump (`favorites:v1` is reused).
 
 **Why not store full `Product`:**
 1. `FavoritesScreen` only renders the visual minimum (id, title, thumbnail,

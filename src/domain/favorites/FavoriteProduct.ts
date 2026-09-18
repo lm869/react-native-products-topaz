@@ -6,4 +6,7 @@ export interface FavoriteProduct {
   category: string;
   brand?: string;
   addedAt: number;
+  rating?: number;
+  discountPercentage?: number;
+  originalPrice?: number;
 }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import {
   Pressable,
   ScrollView,
@@ -60,7 +60,7 @@ function Chip({ label, selected, onPress }: ChipProps): React.JSX.Element {
   );
 }
 
-export function CategoryChips({
+export function CategoryChipsImpl({
   categories,
   selected,
   onSelect,
@@ -88,6 +88,15 @@ export function CategoryChips({
     </ScrollView>
   );
 }
+
+export const CategoryChips = memo(
+  CategoryChipsImpl,
+  (prev, next) =>
+    prev.selected === next.selected &&
+    prev.onSelect === next.onSelect &&
+    prev.categories.length === next.categories.length &&
+    prev.categories.every((c, i) => c.slug === next.categories[i]!.slug),
+);
 
 const styles = StyleSheet.create({
   scroll: {

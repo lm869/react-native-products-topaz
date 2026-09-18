@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { memo, useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { Icon } from '@/components/Icon';
 import { useAppTheme } from '@/theme/ThemeContext';
@@ -9,7 +9,7 @@ type Props = {
   placeholder?: string;
 };
 
-export function SearchBar({
+function SearchBarImpl({
   value,
   onChangeText,
   placeholder = 'Search products',
@@ -77,6 +77,8 @@ export function SearchBar({
     </View>
   );
 }
+
+export const SearchBar = memo(SearchBarImpl);
 
 const styles = StyleSheet.create({
   wrap: {

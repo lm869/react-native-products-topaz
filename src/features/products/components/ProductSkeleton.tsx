@@ -4,6 +4,7 @@ import { useAppTheme } from '@/theme/ThemeContext';
 
 export function SkeletonCard(): React.JSX.Element {
   const theme = useAppTheme();
+  const fill = theme.colors.placeholderBg;
   return (
     <View
       style={[
@@ -17,22 +18,13 @@ export function SkeletonCard(): React.JSX.Element {
       <View
         style={[
           styles.image,
-          {
-            backgroundColor: theme.colors.imageBg,
-            borderRadius: theme.radius.image,
-          },
+          { backgroundColor: fill, borderRadius: theme.radius.image },
         ]}
       />
       <View style={styles.body}>
-        <View
-          style={[styles.lineSm, { backgroundColor: theme.colors.imageBg }]}
-        />
-        <View
-          style={[styles.lineLg, { backgroundColor: theme.colors.imageBg }]}
-        />
-        <View
-          style={[styles.linePrice, { backgroundColor: theme.colors.imageBg }]}
-        />
+        <View style={[styles.lineSm, { backgroundColor: fill }]} />
+        <View style={[styles.lineLg, { backgroundColor: fill }]} />
+        <View style={[styles.linePrice, { backgroundColor: fill }]} />
       </View>
     </View>
   );
@@ -46,13 +38,11 @@ export function ProductSkeleton({ count = 6 }: Props): React.JSX.Element {
   const items: number[] = [];
   for (let i = 0; i < count; i++) items.push(i);
   return (
-    <View style={styles.gridRoot}>
+    <>
       {items.map(i => (
-        <View key={`sk-${i}`} style={styles.gridCell}>
-          <SkeletonCard />
-        </View>
+        <SkeletonCard key={`sk-${i}`} />
       ))}
-    </View>
+    </>
   );
 }
 
@@ -89,15 +79,5 @@ const styles = StyleSheet.create({
     width: '50%',
     borderRadius: 4,
     marginTop: 10,
-  },
-  gridRoot: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 14,
-    rowGap: 14,
-  },
-  gridCell: {
-    flexBasis: '48%',
-    flexGrow: 1,
   },
 });

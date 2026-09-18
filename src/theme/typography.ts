@@ -16,6 +16,7 @@ export const typography = {
     fontSize: 14,
     lineHeight: 20,
     fontWeight: '400',
+    marginTop: 10,
   },
   body: {
     fontSize: 14,
@@ -84,6 +85,13 @@ export const typography = {
     fontSize: 24,
     lineHeight: 30,
     fontWeight: '700',
+  },
+  displayLg: {
+    fontFamily: 'Manrope-Bold',
+    fontSize: 32,
+    lineHeight: 38,
+    fontWeight: '700',
+    letterSpacing: -0.8,
   },
 } satisfies Record<string, TextStyle>;
 

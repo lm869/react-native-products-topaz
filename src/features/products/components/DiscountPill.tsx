@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useAppTheme } from '@/theme/ThemeContext';
 
@@ -6,7 +6,7 @@ type Props = {
   discountPercentage: number;
 };
 
-export function DiscountPill({ discountPercentage }: Props): React.JSX.Element {
+function DiscountPillImpl({ discountPercentage }: Props): React.JSX.Element {
   const theme = useAppTheme();
   const visible = discountPercentage > 0;
   if (!visible) return <View />;
@@ -35,6 +35,8 @@ export function DiscountPill({ discountPercentage }: Props): React.JSX.Element {
     </View>
   );
 }
+
+export const DiscountPill = memo(DiscountPillImpl);
 
 const styles = StyleSheet.create({
   pill: {

@@ -10,6 +10,7 @@ export interface UseCategoriesResult {
   isPending: boolean;
   isError: boolean;
   error: AppError | null;
+  refetch: () => void;
 }
 
 export function useCategories(): UseCategoriesResult {
@@ -25,5 +26,8 @@ export function useCategories(): UseCategoriesResult {
     isPending: query.isPending,
     isError: query.isError,
     error: appError,
+    refetch: () => {
+      query.refetch().catch(() => undefined);
+    },
   };
 }

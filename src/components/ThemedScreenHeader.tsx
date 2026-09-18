@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Icon } from '@/components/Icon';
@@ -11,7 +11,7 @@ type Props = {
   onBack?: () => void;
 };
 
-export function ThemedScreenHeader({
+function ThemedScreenHeaderImpl({
   title,
   back = false,
   onBack,
@@ -66,6 +66,8 @@ export function ThemedScreenHeader({
     </SafeAreaView>
   );
 }
+
+export const ThemedScreenHeader = memo(ThemedScreenHeaderImpl);
 
 const styles = StyleSheet.create({
   root: {
