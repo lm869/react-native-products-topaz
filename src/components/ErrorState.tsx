@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Icon } from '@/components/Icon';
 import { RetryButton } from '@/components/RetryButton';
@@ -26,7 +26,7 @@ function iconForError(kind: AppError['kind']): string {
   }
 }
 
-export function ErrorState({ error, onRetry }: Props): React.JSX.Element {
+function ErrorStateImpl({ error, onRetry }: Props): React.JSX.Element {
   const theme = useAppTheme();
   return (
     <View style={styles.root}>
@@ -60,6 +60,8 @@ export function ErrorState({ error, onRetry }: Props): React.JSX.Element {
     </View>
   );
 }
+
+export const ErrorState = memo(ErrorStateImpl);
 
 const styles = StyleSheet.create({
   root: {

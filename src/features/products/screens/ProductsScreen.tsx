@@ -86,10 +86,7 @@ export function ProductsScreen({ navigation }: Props): React.JSX.Element {
   const showInlineError = isError && items.length === 0;
   const showEmpty = !isPending && !isError && items.length === 0;
 
-  const renderSkeletonItem = useCallback(
-    () => <SkeletonCard />,
-    [],
-  );
+  const renderSkeletonItem = useCallback(() => <SkeletonCard />, []);
 
   const skeletonKeyExtractor = useCallback(
     (_: unknown, i: number) => `sk-${i}`,

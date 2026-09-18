@@ -33,7 +33,7 @@ Priority: P0 (blocker), P1 (must-have), P2 (should), P3 (bonus).
 - [x] T-023 | P0 | T-022 | Add `.eslintrc.js` rule `no-restricted-imports` for `react-native-mmkv` outside `src/storage/`
 - [x] T-024 | P0 | T-023 | `npm run lint` exit 0
 - [x] T-025 | P0 | T-023 | `npm run lint:format` exit 0
-- [ ] T-026 | P0 | T-021 | `npm run android` → app opens with two tabs
+- [x] T-026 | P0 | T-021 | `npm run android` → app opens with two tabs
 - [ ] T-027 | P0 | T-021 | `npm run ios` → app opens with two tabs
 
 ## Phase 2 — Data Layer (8h)
@@ -85,7 +85,7 @@ Priority: P0 (blocker), P1 (must-have), P2 (should), P3 (bonus).
 - [x] T-305 | P0 | T-013 | Extender `src/theme/tokens.ts` con 18 colores nuevos (subtitle, themeToggleBg, searchBg/Focus/Border, focusRing, cardBorder, imageBg, discountBg/Text/Border, favoriteFrosted/BorderActive/BorderInactive, eyebrow, priceStrike, tabActive/Inactive/Indicator, tabBadge). Light + dark pareado. Phase 1 keys intactas.
 - [x] T-306 | P0 | T-305 | Extender `src/theme/typography.ts` con 9 keys (eyebrow, eyebrowSm, cardTitle, searchInput, subtitle, priceMain, priceStrike, footerLabel, screenTitle). `fontFamily: 'Manrope-*'` solo en keys nuevas; Phase 1 keys conservan system font.
 - [x] T-307 | P2 | T-305 | Agregar `spacing.gutterSm` (14) + `spacing.avatar` (8) a `spacing.ts`; `radius.image` (12) a `radius.ts`
-- [ ] T-308 | P0 | T-306,T-304,T-302 | Smoke: app arranca, glyph MCI visible en pantalla de prueba, Manrope aplica en keys nuevos, lint + lint:format + typecheck exit 0
+- [x] T-308 | P0 | T-306,T-304,T-302 | Smoke: app arranca, glyph MCI visible en pantalla de prueba, Manrope aplica en keys nuevos, lint + lint:format + typecheck exit 0
 
 ## Phase 4 — Theme Override (3h)
 
@@ -99,7 +99,7 @@ Priority: P0 (blocker), P1 (must-have), P2 (should), P3 (bonus).
 - [x] T-403 | P0 | T-402,T-013 | Crear `src/theme/ThemeOverrideProvider.tsx`: `useContext(ThemeContext)` + `mode` → derivar `effectiveTheme` → `<ThemeContext.Provider value={effectiveTheme}>`. NO modifica `ThemeProvider.tsx`.
 - [x] T-404 | P0 | T-403,T-304 | Crear `src/features/settings/components/ThemeToggleButton.tsx` — 32×32 circle, glyph MCI `weather-sunny`/`weather-night`, hit 44×44, llama `cycleMode`
 - [x] T-405 | P0 | T-404 | **Modificar `src/AppProviders.tsx`** — wrap children dentro de `<ThemeProvider>` con `<ThemeOverrideProvider>` (1 línea). Único Phase 1 file tocado.
-- [ ] T-406 | P0 | T-405 | Smoke: toggle cambia scheme runtime, persiste tras cold start (kill + reopen), lint + lint:format + typecheck exit 0
+- [x] T-406 | P0 | T-405 | Smoke: toggle cambia scheme runtime, persiste tras cold start (kill + reopen), lint + lint:format + typecheck exit 0
 
 ## Phase 5 — Products + Search + Category (14h)
 

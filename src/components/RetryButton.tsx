@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Pressable, StyleSheet, Text } from 'react-native';
 import { useAppTheme } from '@/theme/ThemeContext';
 
@@ -7,7 +7,7 @@ type Props = {
   label?: string;
 };
 
-export function RetryButton({
+function RetryButtonImpl({
   onPress,
   label = 'Retry',
 }: Props): React.JSX.Element {
@@ -34,6 +34,8 @@ export function RetryButton({
     </Pressable>
   );
 }
+
+export const RetryButton = memo(RetryButtonImpl);
 
 const styles = StyleSheet.create({
   btn: {

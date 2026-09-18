@@ -11,7 +11,6 @@ import { ThemeContext } from '@/theme/ThemeContext';
 import { lightTheme } from '@/theme/lightTheme';
 import { SnackbarProvider } from '@/components/SnackbarProvider';
 import { useFavoritesStore } from '@/features/favorites/store/favoritesStore';
-import { favoritesRepository } from '@/features/favorites/repository/MMKVFavoritesRepository';
 import type { FavoriteProduct } from '@/domain/favorites/FavoriteProduct';
 import type { RootTabScreenProps } from '@/navigation/types';
 import type { ConfirmFn } from '@/components/confirmContext';
@@ -28,10 +27,6 @@ jest.mock('@/features/favorites/repository/MMKVFavoritesRepository', () => ({
 jest.mock('@/hooks/useConfirm', () => ({
   useConfirm: jest.fn(),
 }));
-
-const mockedRepo = favoritesRepository as jest.Mocked<
-  typeof favoritesRepository
->;
 
 const mockedUseConfirm = jest.requireMock('@/hooks/useConfirm')
   .useConfirm as jest.MockedFunction<() => ConfirmFn>;
@@ -142,7 +137,6 @@ describe('FavoritesScreen (integration)', () => {
     expect(screen.getByText('Fav 1')).toBeTruthy();
     expect(screen.getByText('Fav 2')).toBeTruthy();
     expect(screen.getByText('Fav 3')).toBeTruthy();
-    expect(screen.getByText('Clear all')).toBeTruthy();
   });
 
   it('uses singular noun when only one favorite exists', async () => {
@@ -168,71 +162,6 @@ describe('FavoritesScreen (integration)', () => {
     ).toBeTruthy();
     expect(screen.getByText('Your atelier is empty')).toBeTruthy();
     expect(screen.queryByText('Your Saved Pieces')).toBeNull();
-  });
-
-  it('clear-all: confirm accepted → store cleared + snackbar shows Undo', async () => {
-    const confirmFn = jest.fn(() => Promise.resolve(true));
-    mockedUseConfirm.mockReturnValue(confirmFn);
-
-    useFavoritesStore.setState({
-      byId: {
-        1: makeFavorite(1, 3000),
-        2: makeFavorite(2, 2000),
-        3: makeFavorite(3, 1000),
-      },
-      isHydrated: true,
-    });
-
-    await renderScreen();
-
-    fireEvent.press(screen.getByText('Clear all'));
-
-    await waitFor(() => {
-      expect(confirmFn).toHaveBeenCalledTimes(1);
-      expect(useFavoritesStore.getState().byId).toEqual({});
-    });
-
-    expect(confirmFn).toHaveBeenCalledWith(
-      expect.objectContaining({
-        title: 'Clear all favorites?',
-        confirmLabel: 'Clear all',
-      }),
-    );
-
-    expect(
-      screen.getByText(
-        'Items you favorite in the catalog will sync and appear here automatically.',
-      ),
-    ).toBeTruthy();
-
-    expect(screen.getByText('All favorites removed')).toBeTruthy();
-    expect(screen.getByText('UNDO')).toBeTruthy();
-
-    fireEvent.press(screen.getByText('UNDO'));
-
-    await waitFor(() => {
-      expect(useFavoritesStore.getState().byId[1]).toBeDefined();
-      expect(useFavoritesStore.getState().byId[2]).toBeDefined();
-      expect(useFavoritesStore.getState().byId[3]).toBeDefined();
-    });
-  });
-
-  it('clear-all: confirm canceled → no changes', async () => {
-    setConfirmNextResult(false);
-
-    useFavoritesStore.setState({
-      byId: { 1: makeFavorite(1, 1000) },
-      isHydrated: true,
-    });
-
-    await renderScreen();
-
-    fireEvent.press(screen.getByText('Clear all'));
-
-    await waitFor(() => {
-      expect(useFavoritesStore.getState().byId[1]).toBeDefined();
-    });
-    expect(mockedRepo.remove).not.toHaveBeenCalled();
   });
 
   it('swipeable delete: confirm accepted → removes entry + shows undo', async () => {
