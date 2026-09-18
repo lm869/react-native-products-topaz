@@ -343,9 +343,9 @@ Priority: P0 (blocker), P1 (must-have), P2 (should), P3 (bonus).
 - [x] T-1042 | P1 | T-1010,T-1011 | A11y labels: swipe action button (VoiceOver: "Delete {title}"), snackbar announcement, tab badge.
 
 ### Screenshots (moved from Phase 8 — T-217..T-219)
-- [ ] T-1045 | P0 | T-1040 | Take screenshots: Products list (light + dark), Detail, Favorites _(pendiente: requiere emulador; `docs/screenshots/` creado con README explicativo)_
-- [ ] T-1046 | P0 | T-1045 | Save screenshots in `docs/screenshots/`
-- [ ] T-1047 | P0 | T-1046 | Reference screenshots from README (section `docs/screenshots/`)
+- [x] T-1045 | P0 | T-1040 | Take screenshots: Products list (light + dark), Detail, Favorites _(completado: `products-light.png`, `products-dark.png`, `product-detail.png`, `favorites-light.png`, `favorites-dark.png` capturados desde emulador)_
+- [x] T-1046 | P0 | T-1045 | Save screenshots in `docs/screenshots/`
+- [x] T-1047 | P0 | T-1046 | Reference screenshots from README (section `## Screenshots`)
 
 ### Confirm Modal (Phase 10 follow-up, ~1.5h)
 - [x] T-1100 | P0 | T-1103 | `src/theme/tokens.ts` +`modalBackdrop` light/dark pareado.

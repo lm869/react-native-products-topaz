@@ -1,14 +1,14 @@
-# Phase 10 — Screenshots
+# Screenshots
 
-Pending. Requires an Android emulator or iOS simulator with `npm start` running
-to capture the following:
+Capturas de la app corriendo en emulador/simulador. Se referencian desde
+[`../../README.md`](../../README.md#screenshots).
 
-- `products-light.png`
-- `products-dark.png`
-- `product-detail.png`
-- `favorites-light.png`
-- `favorites-dark.png`
+## Inventario
 
-Captures will populate this directory per tasks T-1045..T-1047 once an
-emulator is available. No placeholder PNGs are generated; this directory
-exists so the README reference path resolves at build time.
+- `products-light.png` — lista de productos, modo claro
+- `products-dark.png` — lista de productos, modo oscuro
+- `product-detail.png` — detalle de producto
+- `favorites-light.png` — favoritos, modo claro
+- `favorites-dark.png` — favoritos, modo oscuro
+- `search.png` *(Phase 9 demo)* — búsqueda con debounce
+- `currency-change.png` *(Phase 9 demo)* — selector de currency con módulo nativo

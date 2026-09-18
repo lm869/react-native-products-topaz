@@ -1,16 +1,16 @@
-# topazProducts
+# react-native-products-topaz
 
 Catálogo de productos en React Native 0.81 con búsqueda, categorías, detalle y favoritos.
 Scaffold desde `@react-native-community/cli@20`, arquitectura por capas
 (`domain` → `api` / `storage` → `feature/repository` → `feature/hooks` → `feature/components` → `screens`),
 TanStack Query para estado del servidor, Zustand + MMKV para persistencia local.
 
-Fuente de verdad: [`specs/001-topaz-products/`](specs/001-topaz-products/)
-(spec.md, plan.md, tasks.md, data-model.md, constitution).
 
 ---
 
 ## Arquitectura
+
+basado en la propuesta de la prueba, aunque agrega features, pues mantiene toda la funcionalidad por carpetas, organizando recursos del feature en subcarpertas para.  mejor mantenibilidad, theme pues agregue soporte light dark, ademas de centralizar en variables las caracteristicas como espaciados, colores fuentes.
 
 ```
                 UI (Screens, Components)
@@ -30,14 +30,13 @@ Fuente de verdad: [`specs/001-topaz-products/`](specs/001-topaz-products/)
 ```
 
 Las reglas de dependencia se fuerzan vía ESLint `no-restricted-imports`
-(ver `plan.md § Dependency Rules`).
 
 ---
 
 ## Estructura de carpetas
 
 ```
-topazProducts/
+react-native-products-topaz/
 ├── App.tsx                      # monta <AppProviders><Navigation/></AppProviders>
 ├── index.js
 ├── package.json
@@ -107,6 +106,35 @@ Engines: `node >= 22.11.0` (forzado por `package.json`).
 
 ---
 
+## HTTP
+
+Utilice fetch nativo pues axios agrega mas peso a la version final y el API que expone Hermes es suficiente.
+
+---
+
+## Screenshots
+
+| Products (light) | Products (dark) |
+|------------------|-----------------|
+| ![Products light](./docs/screenshots/products-light.png) | ![Products dark](./docs/screenshots/products-dark.png) |
+
+| Favorites (light) | Favorites (dark) |
+|-------------------|------------------|
+| ![Favorites light](./docs/screenshots/favorites-light.png) | ![Favorites dark](./docs/screenshots/favorites-dark.png) |
+
+**Detalle de producto**
+
+![Product detail](./docs/screenshots/product-detail.png)
+
+**Extras — Phase 9**
+
+| Búsqueda (debounce) | Currency selector (módulo nativo Kotlin) |
+|----------------------|------------------------------------------|
+| ![Search](./docs/screenshots/search.png) | ![Currency change](./docs/screenshots/currency-change.png) |
+
+---
+
+# Como ejecutar
 ## Prerrequisitos
 
 | Herramienta    | Versión          | Por qué |
@@ -171,67 +199,26 @@ Full reload en device:
 
 ## Decisiones técnicas
 
-- **API**: [DummyJSON `/products`](https://dummyjson.com/docs/products) — sin auth,
-  soporta paginación + search + filtro por categoría + sort. Endpoints clave:
-  `GET /products?limit&skip&search&category&sortBy&order`,
-  `GET /products/:id`, `GET /products/categories`, `GET /products/category/:slug`.
+- **Persistencia local con MMKV** (`src/storage/mmkv.ts`, `react-native-mmkv` v3):
 
-- **Arquitectura por capas**: `domain` (interfaces + modelos puros) → `api` / `storage`
-  (adaptadores de infra) → `feature/repository` (impl concreta) → `feature/hooks` (TanStack Query / Zustand)
-  → `feature/components` (presentacionales) → `screens`. Forzado por ESLint `no-restricted-imports`.
-  Ver `plan.md § Dependency Rules` para matriz completa.
+Elegi MMKV por ser actual y tener muy buen rendimiento,  es lo que pienso ideal para este proyecto pues AsyncStorage me parece un poco anticuado y un motor de Base de datos. hubiese sido sobreingenieria.
 
-- **Estado del servidor**: TanStack Query v5 con `useInfiniteQuery` (listas paginadas)
-  y propagación de `AbortSignal` signal-aware: `httpClient → api → repository → hook`.
-  Defaults: `staleTime: 60s`, retry-una-vez para reads idempotentes.
+---
 
-- **Estado local**: Zustand para estado cross-feature (`favoritesStore`).
-  MMKV es el boundary de persistencia — solo `MMKVFavoritesRepository` lee/escribe.
+## Testing
 
-- **Theming**: paletas light + dark (`tokens.ts` espejado en ambos temas), override en runtime
-  vía `ThemeOverrideProvider`. Tema del sistema + `ThemeToggleButton` manual, ambos honrados.
-  Override manual persiste en MMKV.
+Cobertura del requisito "≥1 test de integración de componente significativo
+(renderizado + interacción)" — Jest + RNTL v14:
 
-- **Animaciones**: solo `react-native-reanimated` v3 — sin API `Animated`.
-  `FavoriteButton` usa `useSharedValue` + `withSpring` (scale 1 → 1.2 → 1).
+| Test | Casos | Render | Interacción |
+|---|---|---|---|
+| `FavoritesScreen.test.tsx` | 7 | hero+counter, pluralización, empty state | swipe-delete (accept/cancel), undo snackbar, navegación cross-tab |
+| `ProductDetailScreen.test.tsx` | 6 | success, skeleton, 404, error, ya-favoritado | toggle favorite (cambia a11y label) |
 
-- **Imágenes**: `@d11/react-native-fast-image` en lugar de `react-native-fast-image`
-  (mainline sin mantenimiento en RN 0.81). Ver `plan.md` Art. IX §2 para el workaround
-  de dedupe de `androidsvg`.
-
-- **Alias `@/*` → `src/*`**: funciona a nivel TypeScript (`tsconfig.json` paths),
-  Metro (`babel-plugin-module-resolver`), y Jest (`moduleNameMapper`).
-  Drift entre las tres capas = error runtime `Unable to resolve module @/...`.
-  El orden de plugins de babel importa: `module-resolver` **antes** de `react-native-reanimated/plugin`.
-
-- **Pin de codegen**: `react-native-screens` pineado a **4.15.0 exact**. 4.16+ trae
-  `SearchBarNativeComponent.ts` cuya sintaxis de comandos `ElementRef<>` rompe el parser
-  de codegen en RN 0.81. No bumpear sin verificar codegen contra
-  `@react-native/codegen` de esta versión de RN.
-
-- **Native module (Phase 9 bonus)**: módulo Kotlin `com.topazproducts.nativecurrency`
-  expone `format(amount, currencyCode, locale)` vía `@ReactMethod` + `Promise`.
-  Usa `java.text.NumberFormat` (API nativa Android, ICU del sistema).
-  Wrapper JS detecta `Platform.OS === 'android'` + módulo registrado → llama
-  nativo; cualquier otra condición (iOS, ausencia, error) cae a `Intl.NumberFormat`.
-  iOS sin Swift module — `formatCurrency()` sync sigue siendo el path default.
-  Demo de uso en `ProductDetailScreen` con selector currency + rates ficticios
-  (ver sección *Bonus Features*).
-
-- **Manejo de errores**: taxonomía `AppError` en `src/api/errors.ts` cubre `network` /
-  `timeout` / `abort` / `http` / `parse` / `unknown`. `httpClient` mapea fallos de fetch
-  a errores tipados; los repositorios propagan; los hooks exponen en el campo `error`;
-  las screens renderizan `ErrorState` + `RetryButton` (llama a `query.refetch()`).
-  `ErrorBoundary` de raíz captura excepciones del árbol de render con botón **Reset**.
-
-- **Budget de performance** (de `plan.md § Performance Spec`):
-  TTI ≤ 1.5s en device mid-tier; APK ≤ 25MB; imágenes de arranque ≤ 300KB.
-  `ProductCard`/`FavoriteListItem` envueltos en `React.memo` con equality fn per-field.
-  Lista del catálogo usa `FlatList` con `getItemLayout` para alturas estables.
-
-- **Accesibilidad**: cada superficie interactiva tiene `accessibilityRole`, `accessibilityLabel`,
-  y (donde hay estado) `accessibilityState`. Touch targets ≥ 44×44 (excepción: chips 40 por decisión visual).
-  Los cambios de estado nunca se transmiten solo por color — siempre acompañados de icono, glyph o label.
+**Mocks**: `MMKVFavoritesRepository`, `useConfirm`, `useProduct`.
+**Providers reales**: `SafeAreaProvider`, `QueryClientProvider`,
+`ThemeContext`, `SnackbarProvider`. RNTL v14 (render async, React 19).
+No E2E (Detox/Maestro) — ver `## Tradeoffs`.
 
 ---
 
@@ -271,7 +258,6 @@ cd ios && xcodebuild \
   Sin mutaciones, sin caché más allá del in-memory + persistence-omitted de TanStack Query.
 
 - **Favoritos solo locales**: persistencia MMKV, nunca sincronizados. Pill "Synced locally"
-  (Phase 10) reemplaza el copy antiguo "Synced with AsyncStorage" (FAV-001 requiere MMKV).
 
 - **Sin backdrop-blur**: módulos nativos de blur (`@react-native-community/blur`) añaden riesgo
   de codegen al final del ciclo. El header de Favorites usa translucencia `rgba(...,0.85)` —
@@ -279,10 +265,6 @@ cd ios && xcodebuild \
 
 - **Sin tests E2E**: solo unit/integration MUST-level (4 archivos según
   `plan.md § Testing Strategy v2` + añadidos Phase 7 v2). Sin Detox/Maestro.
-
-- **Sin screenshots en repo**: `docs/screenshots/` queda creado (con README) en
-  Phase 10; los PNG (T-1045..T-1047) requieren emulador y quedan como tarea
-  diferida explícita en `tasks.md`.
 
 - **Verificación manual de dark-mode**: T-203 (Phase 8) se verifica solo por code review —
   sin corrida en emulador logueada. El toggle está cableado vía `useThemeOverride` y
@@ -346,35 +328,20 @@ acción con currencies no-USD.
 
 #### Limitaciones del demo
 
-- Rates hardcoded se desactualizan al instante. Para rates reales habría que
+- Valores para conversion hardcoded. Para rates reales habría que
   integrar una API externa (`frankfurter.app`, `exchangerate.host`, etc.) con
-  fetch + cache — fuera del scope de Phase 9.
+  fetch + cache — fuera del scope.
 - El selector solo afecta `ProductDetailScreen`. `ProductCard` (lista de
   productos) y `FavoriteListItem` siguen mostrando USD sin conversión.
-- `ProductDetailScreen` no estaba en el scope original de Phase 9 — fue
-  agregado después para poder demostrar el módulo nativo en uso real.
 
 #### Por qué **solo Android (Kotlin)**
 
-iOS no está cubierto porque `Phase 9` fue declarada bonus opcional y el scope
+iOS no está cubierto porque el bonus es opcional y el scope
 se acotó a Kotlin. El wrapper TS sigue funcionando idéntico en iOS — simplemente
 cae a `Intl.NumberFormat` sin pasar por bridge nativo. `formatCurrency()` (sync,
 en `src/utils/currency.ts`) sigue siendo el path usado por los 3 call sites
 actuales (`ProductCard`, `ProductDetailScreen`, `FavoriteListItem`).
 
-> ⚠️ En `ProductDetailScreen` ahora hay una **excepción**: el precio principal
-> y el strike price usan `useFormattedPrice` (async, soporta nativo). El
-> formatter sync `formatCurrency()` se mantiene para los labels de accesibilidad
-> (`a11yLabel` en ProductCard y FavoriteListItem).
-
-#### Por qué **opt-in async** y no refactor de `formatCurrency`
-
-`formatCurrency` es **síncrono** y se llama en render JSX directo. Cambiarlo a
-async obligaría a los 3 consumidores a manejar estado (`useState` + `useEffect`),
-lo que duplicaría renders y complicaría la lógica de accesibilidad. `Intl`
-en JS ya es rápido para el dataset del catálogo (~30 productos visibles a la
-vez). El wrapper async se reserva para futuros casos donde el formato nativo
-aporte valor medible (listas muy largas, animaciones, etc.).
 
 #### Output examples (conversión ficticia, `product.price = 8.94` USD)
 
@@ -403,11 +370,6 @@ end-to-end y la integración con `MainApplication.kt` está bien registrada.
 3. Tipar el método en `src/utils/nativeCurrencyFormatter.ts` (interface `NativeCurrencyFormatter`).
 4. Exportar wrapper function con fallback correspondiente (mismo patrón que `formatCurrencyNative`).
 
-**Migrar a TurboModule** (RN new arch — out of scope Phase 9):
-- `codegenConfig` en `package.json` + `@react-native/codegen`.
-- Spec TS en `src/specs/NativeCurrencyFormatter.ts` (interface tipada para codegen).
-- Bridge pasa de JSON serializer a JSI — llamadas **síncronas** posibles, 10-100x más rápidas.
-- Trade-off: requiere `newArchEnabled=true`, más boilerplate, debugging más complejo.
 
 #### API del módulo nativo
 
